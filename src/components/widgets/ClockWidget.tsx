@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Droplets, Wind, Sun } from "lucide-react";
 import { wmoToIcon, wmoToText } from "@/lib/weather/wmo";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -18,11 +19,15 @@ export default function ClockWidget({ config }: { config?: any }) {
   }, []);
 
   // Weather Loop
+  const unitTemp: "celsius" | "fahrenheit" =
+    config?.unitTemp === "fahrenheit" ? "fahrenheit" : "celsius";
   useEffect(() => {
     if (!config?.showMiniWeather || !config?.lat || !config?.lon) return;
     const fetchWeather = async () => {
       try {
-        const res = await fetch(`/api/weather?lat=${config.lat}&lon=${config.lon}`);
+        const res = await fetch(
+          `/api/weather?lat=${config.lat}&lon=${config.lon}&temperature_unit=${unitTemp}`
+        );
         const result = await res.json();
         if (!result.error) setWeather(result);
       } catch (e) {
@@ -32,7 +37,7 @@ export default function ClockWidget({ config }: { config?: any }) {
     fetchWeather();
     const interval = setInterval(fetchWeather, 15 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [config?.showMiniWeather, config?.lat, config?.lon]);
+  }, [config?.showMiniWeather, config?.lat, config?.lon, unitTemp]);
 
   if (!time) return <div className="animate-pulse w-full h-full bg-white/5 rounded-xl min-h-[4em]"></div>;
 
@@ -121,32 +126,52 @@ export default function ClockWidget({ config }: { config?: any }) {
        )}
 
        {/* Mini Weather */}
-       {config?.showMiniWeather && weather?.current && (
+       {config?.showMiniWeather && weather?.current && (() => {
+          // Stats-Größe in Pixel (absolut), nicht in em — sonst skaliert die
+          // Stats-Zeile mit der Widget-Schriftgröße mit. Default 12px.
+          const statsSizePx = typeof config?.statsSize === 'number' ? config.statsSize : 12;
+          return (
           <div className="flex flex-col gap-1 mt-1">
              <div className="flex items-center gap-2">
                 <div style={{ width: '1.5em', height: '1.5em' }} className="shrink-0 opacity-90 inline-block drop-shadow-md">
                    {wmoToIcon(weather.current.weather_code, isDay, config.iconSet)}
                 </div>
                 <span style={{ fontSize: '1.2em' }} className="font-bold drop-shadow-md tracking-wide">
-                   {config.location ? config.location.split(',')[0] : 'Weather'}, {Math.round(weather.current.temperature_2m)}°
+                   {config.location ? config.location.split(',')[0] : 'Weather'}, {Math.round(weather.current.temperature_2m)}{unitTemp === "fahrenheit" ? "°F" : "°C"}
                 </span>
              </div>
              {/* Subtext */}
              <div style={{ fontSize: '0.9em' }} className="font-medium opacity-80 pl-2">
                 {wmoToText(weather.current.weather_code, locale)}
-                {((config.showHumidity && weather.current.relative_humidity_2m !== undefined) || (config.showWind && weather.current.wind_speed_10m !== undefined)) && (
-                   <span className="ml-[0.8em] opacity-80 inline-flex items-center gap-[0.5em]">
+                {((config.showHumidity && weather.current.relative_humidity_2m !== undefined) || (config.showWind && weather.current.wind_speed_10m !== undefined) || (config.showUv && typeof weather.current.uv_index === "number")) && (
+                   <span
+                      style={{ fontSize: `${statsSizePx}px` }}
+                      className="ml-[0.8em] opacity-80 inline-flex flex-wrap items-center gap-x-[0.6em] gap-y-[0.1em]"
+                   >
                       {config.showHumidity && weather.current.relative_humidity_2m !== undefined && (
-                         <span className="flex items-center gap-[0.2em]"><span style={{fontSize: '0.9em'}}>💧</span> {weather.current.relative_humidity_2m}%</span>
+                         <span className="flex items-center gap-[0.25em]">
+                            <Droplets style={{ width: '1em', height: '1em' }} strokeWidth={2} className="opacity-80" />
+                            {weather.current.relative_humidity_2m}%
+                         </span>
                       )}
                       {config.showWind && weather.current.wind_speed_10m !== undefined && (
-                         <span className="flex items-center gap-[0.2em]"><span style={{fontSize: '0.9em'}}>💨</span> {Math.round(weather.current.wind_speed_10m)} km/h</span>
+                         <span className="flex items-center gap-[0.25em]">
+                            <Wind style={{ width: '1em', height: '1em' }} strokeWidth={2} className="opacity-80" />
+                            {Math.round(weather.current.wind_speed_10m)} km/h
+                         </span>
+                      )}
+                      {config.showUv && typeof weather.current.uv_index === "number" && (
+                         <span className="flex items-center gap-[0.25em]">
+                            <Sun style={{ width: '1em', height: '1em' }} strokeWidth={2} className="opacity-80" />
+                            UV {Math.round(weather.current.uv_index)}
+                         </span>
                       )}
                    </span>
                 )}
              </div>
           </div>
-       )}
+          );
+       })()}
     </div>
   );
 }

@@ -139,21 +139,34 @@ export default function ClockInspector({
                     />
                  </div>
               </div>
-              <div className="mt-4 border-t border-white/10 pt-4">
-                 <label className="text-sm font-medium text-white/80 block mb-2">{t("Icon Stil (Wetter)")}</label>
-                 <select
-                    value={(activeWidget.config as any)?.iconSet || 'lucide'}
-                    onChange={(e) => updateConfig(activeWidget.i, 'iconSet', e.target.value)}
-                    className="w-full bg-black border border-white/10 text-white font-sans text-sm rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 appearance-none cursor-pointer"
-                 >
-                    <option value="lucide">{t("Lucide (Klar, Umriss)")}</option>
-                    <option value="solid">{t("Solid (Gefüllt, Flach)")}</option>
-                    <option value="celestial">{t("Celestial (3D, Animiert)")}</option>
-                    <option value="forecast">{t("Forecast (Colored Glass)")}</option>
-                 </select>
+              <div className="mt-4 border-t border-white/10 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 <div>
+                    <label className="text-sm font-medium text-white/80 block mb-2">{t("Icon Stil (Wetter)")}</label>
+                    <select
+                       value={(activeWidget.config as any)?.iconSet || 'lucide'}
+                       onChange={(e) => updateConfig(activeWidget.i, 'iconSet', e.target.value)}
+                       className="w-full bg-black border border-white/10 text-white font-sans text-sm rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 appearance-none cursor-pointer"
+                    >
+                       <option value="lucide">{t("Lucide (Klar, Umriss)")}</option>
+                       <option value="solid">{t("Solid (Gefüllt, Flach)")}</option>
+                       <option value="celestial">{t("Celestial (3D, Animiert)")}</option>
+                       <option value="forecast">{t("Forecast (Colored Glass)")}</option>
+                    </select>
+                 </div>
+                 <div>
+                    <label className="text-sm font-medium text-white/80 block mb-2">{t("Temperatur-Einheit")}</label>
+                    <select
+                       value={(activeWidget.config as any)?.unitTemp || 'celsius'}
+                       onChange={(e) => updateConfig(activeWidget.i, 'unitTemp', e.target.value)}
+                       className="w-full bg-black border border-white/10 text-white font-sans text-sm rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 appearance-none cursor-pointer"
+                    >
+                       <option value="celsius">{t("Celsius (°C)")}</option>
+                       <option value="fahrenheit">{t("Fahrenheit (°F)")}</option>
+                    </select>
+                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
                  <label className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative">
                        <input
@@ -164,7 +177,7 @@ export default function ClockInspector({
                        />
                        <div className="w-9 h-5 bg-black/40 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
                     </div>
-                    <span className="text-xs font-medium text-white/80 group-hover:text-white transition-colors">{t("Luftfeuchte")} 💧</span>
+                    <span className="text-xs font-medium text-white/80 group-hover:text-white transition-colors">{t("Luftfeuchte")}</span>
                  </label>
                  <label className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative">
@@ -176,9 +189,38 @@ export default function ClockInspector({
                        />
                        <div className="w-9 h-5 bg-black/40 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
                     </div>
-                    <span className="text-xs font-medium text-white/80 group-hover:text-white transition-colors">{t("Wind")} 💨</span>
+                    <span className="text-xs font-medium text-white/80 group-hover:text-white transition-colors">{t("Wind")}</span>
+                 </label>
+                 <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                       <input
+                          type="checkbox"
+                          checked={(activeWidget.config as any)?.showUv ?? false}
+                          onChange={(e) => updateConfig(activeWidget.i, 'showUv', e.target.checked)}
+                          className="sr-only peer"
+                       />
+                       <div className="w-9 h-5 bg-black/40 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-yellow-500"></div>
+                    </div>
+                    <span className="text-xs font-medium text-white/80 group-hover:text-white transition-colors">{t("UV-Index")}</span>
                  </label>
               </div>
+
+              {/* Schriftgröße UV/Wind/Feuchte in Pixel — absolut, skaliert nicht
+                  mit der Clock-Schriftgröße mit. */}
+              {(activeWidget.config?.showHumidity || activeWidget.config?.showWind || (activeWidget.config as any)?.showUv) && (
+                 <div className="pt-1">
+                    <label className="text-xs font-medium text-white/60 flex justify-between mb-1.5">
+                       <span>{t("Schriftgröße Luftfeuchte / Wind / UV")}</span>
+                       <span className="text-cyan-300">{(activeWidget.config as any)?.statsSize ?? 12} px</span>
+                    </label>
+                    <input
+                       type="range" min="8" max="32" step="1"
+                       value={(activeWidget.config as any)?.statsSize ?? 12}
+                       onChange={(e) => updateConfig(activeWidget.i, 'statsSize', parseInt(e.target.value))}
+                       className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-cyan-500 bg-white/10"
+                    />
+                 </div>
+              )}
           </div>
        )}
     </div>
