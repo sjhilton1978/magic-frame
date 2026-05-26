@@ -139,6 +139,8 @@ export default function IntegrationsPage() {
 
         <TodoistSection />
 
+        <OpenWeatherMapSection />
+
         <section className="mt-10 bg-zinc-900/40 border border-dashed border-white/10 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-2">
             <Plug size={16} className="text-white/50" />
@@ -817,6 +819,193 @@ function TodoistSection() {
             </li>
           ))}
         </ul>
+      )}
+    </section>
+  );
+}
+
+function OpenWeatherMapSection() {
+  const t = useT();
+  const [configured, setConfigured] = useState(false);
+  const [fromEnv, setFromEnv] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [key, setKey] = useState("");
+  const [reveal, setReveal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const r = await fetch("/api/admin/owm-credentials", { cache: "no-store" });
+      const d = await r.json();
+      setConfigured(!!d.configured);
+      setFromEnv(!!d.fromEnv);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    load();
+  }, []);
+
+  function flash(kind: "ok" | "err", m: string) {
+    setMsg({ kind, msg: m });
+    setTimeout(() => setMsg(null), 4000);
+  }
+
+  async function save() {
+    setSaving(true);
+    try {
+      const r = await fetch("/api/admin/owm-credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: key }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || t("Speichern fehlgeschlagen."));
+      flash("ok", key ? t("Key gespeichert.") : t("Key entfernt."));
+      setKey("");
+      setEditing(false);
+      load();
+    } catch (e: any) {
+      flash("err", e.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section className="mb-10 bg-zinc-900/60 border border-white/10 rounded-2xl p-6">
+      <div className="flex items-start gap-4 mb-4">
+        <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl shrink-0">
+          ☀️
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-semibold text-lg flex items-center gap-2">
+            OpenWeatherMap
+            {configured && (
+              <span className="text-[10px] uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-1.5 py-0.5 rounded">
+                {t("verbunden")}
+              </span>
+            )}
+            {fromEnv && (
+              <span className="text-[10px] uppercase tracking-wider bg-blue-500/10 border border-blue-500/30 text-blue-300 px-1.5 py-0.5 rounded">
+                {t("via ENV")}
+              </span>
+            )}
+          </h2>
+          <p className="text-sm text-white/50">
+            {t("Alternativer Wetter-Provider. Optional — der Default (Open-Meteo) braucht keinen Key. Free-Tier: 1000 Calls/Tag.")}
+          </p>
+        </div>
+      </div>
+
+      {msg && (
+        <div className={`mb-3 text-sm rounded-lg p-3 border ${msg.kind === "ok" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
+          {msg.msg}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="text-sm text-white/40">{t("Lade…")}</div>
+      ) : configured && !editing ? (
+        <div className="flex items-center gap-2 mb-3">
+          <div className="text-sm text-white/70 flex-1">
+            {fromEnv
+              ? t("Key aus Umgebungsvariable OPENWEATHERMAP_API_KEY (read-only). UI-Override jederzeit möglich.")
+              : t("API-Key gespeichert, OWM-Provider ist nutzbar.")}
+          </div>
+          <button
+            onClick={() => {
+              setEditing(true);
+              setKey("");
+            }}
+            className="text-xs bg-white/10 hover:bg-white/15 text-white rounded-md px-3 h-8"
+          >
+            {fromEnv ? t("Override setzen") : t("Key ändern")}
+          </button>
+          {!fromEnv && (
+            <button
+              onClick={async () => {
+                if (!confirm(t("Key wirklich entfernen?"))) return;
+                await fetch("/api/admin/owm-credentials", { method: "DELETE" });
+                load();
+              }}
+              className="text-xs bg-red-500/15 hover:bg-red-500/25 text-red-300 rounded-md px-3 h-8"
+            >
+              {t("Entfernen")}
+            </button>
+          )}
+        </div>
+      ) : (
+        <div>
+          <ol className="text-sm text-white/70 space-y-2 mb-4">
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-200 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <div className="flex-1">
+                <a
+                  href="https://home.openweathermap.org/api_keys"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 underline underline-offset-2"
+                >
+                  {t("OpenWeatherMap API-Keys-Seite öffnen")} <ExternalLink size={12} />
+                </a>
+                <p className="text-[11px] text-white/40 mt-0.5">
+                  {t("Account anlegen falls noch nicht passiert. Free-Tier reicht (1000 Calls/Tag).")}
+                </p>
+              </div>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="w-5 h-5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-200 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <div className="flex-1">
+                {t("Default-API-Key kopieren (oder neuen erstellen) und hier unten einfügen.")}
+              </div>
+            </li>
+          </ol>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <input
+                type={reveal ? "text" : "password"}
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+                placeholder={t("API-Key einfügen…")}
+                className="w-full bg-black border border-white/10 text-white text-sm rounded-md px-3 pr-9 h-9 focus:outline-none focus:border-amber-500/60 font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setReveal((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70"
+                tabIndex={-1}
+              >
+                {reveal ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+            <button
+              onClick={save}
+              disabled={saving || !key.trim()}
+              className="text-xs bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold rounded-md px-3 h-9"
+            >
+              {saving ? t("Speichere…") : t("Speichern")}
+            </button>
+            {editing && (
+              <button
+                onClick={() => {
+                  setEditing(false);
+                  setKey("");
+                }}
+                className="text-xs bg-white/10 hover:bg-white/15 text-white rounded-md px-3 h-9"
+              >
+                {t("Abbrechen")}
+              </button>
+            )}
+          </div>
+          <p className="text-[11px] text-white/40 mt-2">
+            {t("Nach dem Speichern dauert es ~5-10 Minuten bis OpenWeatherMap deinen neuen Key freischaltet. Bis dahin kommen 401-Fehler.")}
+          </p>
+        </div>
       )}
     </section>
   );
