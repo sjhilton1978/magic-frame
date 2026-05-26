@@ -92,6 +92,23 @@ export default function CalendarInspector({
           </div>
           <span className="text-sm text-white/80 group-hover:text-white transition-colors">{t("Widget kompett ausblenden, wenn leer")}</span>
        </label>
+
+       <label className="flex items-center gap-3 cursor-pointer mt-2 group">
+          <div className="relative flex items-center justify-center">
+             <input
+                type="checkbox"
+                checked={(activeWidget.config as any)?.hideWeekday || false}
+                onChange={(e) => updateConfig(activeWidget.i, 'hideWeekday', e.target.checked)}
+                className="appearance-none w-5 h-5 border border-white/20 rounded bg-black checked:bg-violet-500 checked:border-violet-500 transition-colors"
+             />
+             {(activeWidget.config as any)?.hideWeekday && (
+                <svg className="w-3.5 h-3.5 text-white absolute pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+             )}
+          </div>
+          <span className="text-sm text-white/80 group-hover:text-white transition-colors">{t("Wochentag ausblenden")}</span>
+       </label>
     </div>
   );
 }

@@ -135,12 +135,18 @@ export default function CalendarWidget({ config, onVisibilityChange }: { config?
           const startDate = parseISO(ev.start);
           if (!isValid(startDate)) return null;
 
-          let dayLabel: string;
-          if (isToday(startDate)) dayLabel = t("Heute");
-          else if (isTomorrow(startDate)) dayLabel = t("Morgen");
-          else dayLabel = format(startDate, "eee", { locale: dfLocale });
-
+          // Layout: small month label above the big day number, with the
+          // weekday rendered inline next to the number (baseline-aligned).
+          //   JUNI
+          //   11  DO.
+          // The weekday can be hidden via config.hideWeekday (Inspector toggle).
+          const monthLabel = format(startDate, "MMM", { locale: dfLocale });
+          let weekdayLabel: string;
+          if (isToday(startDate)) weekdayLabel = t("Heute");
+          else if (isTomorrow(startDate)) weekdayLabel = t("Morgen");
+          else weekdayLabel = format(startDate, "eee", { locale: dfLocale });
           const dateLabel = format(startDate, "d");
+          const hideWeekday = (config as any)?.hideWeekday === true;
           const timeStr = ev.isAllDay ? t("Ganztägig") : format(startDate, "HH:mm");
           const cardOpacity = config?.cardOpacity !== undefined ? config.cardOpacity : 40;
           const hasBg = cardOpacity > 0;
@@ -150,15 +156,27 @@ export default function CalendarWidget({ config, onVisibilityChange }: { config?
 
           if (isMinimal) {
              return (
-               <div key={ev.id} className="flex gap-[0.8em] items-baseline mb-[0.6em]">
+               // items-end: Inhalt-Spalte (Titel + Subtitle) wird an die
+               // UNTERKANTE des Datum-Blocks angesetzt — Subtitle-Zeile sitzt
+               // bündig mit der Unterkante der großen Tageszahl, Titel sitzt
+               // direkt darüber. Vorher items-baseline → Titel klebte an
+               // der Monatszeile, sah optisch top-lastig aus.
+               <div key={ev.id} className="flex gap-[0.8em] items-end mb-[0.6em]">
                  <span className="shrink-0 w-[4px] bg-white rounded-full self-stretch my-1" style={{ backgroundColor: accentColorForEvent }}></span>
-                 <div className="flex flex-col min-w-0" style={{ width: '4.5em' }}>
-                   <span className="opacity-80 leading-tight uppercase font-medium tracking-wider" style={{ fontSize: '0.8em' }}>{dayLabel}</span>
+                 {/* Datum-Spalte: Monat klein oben, Tageszahl groß. Schmaler
+                     fester Block für saubere vertikale Ausrichtung über
+                     mehrere Events hinweg. Der Wochentag steckt jetzt rechts
+                     bei der Uhrzeit (siehe unten) — wirkt aufgeräumter. */}
+                 <div className="flex flex-col min-w-0 shrink-0" style={{ width: '2.4em' }}>
+                   <span className="opacity-80 leading-tight uppercase font-medium tracking-wider" style={{ fontSize: '0.7em' }}>{monthLabel}</span>
                    <span className="font-bold leading-none tracking-tighter" style={{ fontSize: '1.8em' }}>{dateLabel}</span>
                  </div>
-                 <div className="flex flex-col flex-1 min-w-0 justify-center">
+                 <div className="flex flex-col flex-1 min-w-0">
                    <span className="font-bold leading-tight truncate" style={{ fontSize: '1em' }}>{ev.title}</span>
-                   <span className="text-white/50 text-[0.8em]">{timeStr}</span>
+                   <span className="text-white/50 text-[0.8em] leading-tight">
+                     {!hideWeekday && <span className="uppercase tracking-wider">{weekdayLabel} · </span>}
+                     {timeStr}
+                   </span>
                  </div>
                </div>
              );
@@ -170,20 +188,23 @@ export default function CalendarWidget({ config, onVisibilityChange }: { config?
                  className={`flex items-center justify-start gap-[0.8em] w-full rounded-3xl p-[0.6em] transform transition-all hover:scale-[1.02] shrink-0 mb-[0.8em] ${hasBg ? 'backdrop-blur-md border border-white/10 shadow-xl' : ''}`}
                  style={{ backgroundColor: `rgba(0,0,0,${cardOpacity / 100})`, boxShadow: hasBg ? `0 8px 32px ${accentColorForEvent}15` : 'none', borderLeft: hasBg ? `0.3em solid ${accentColorForEvent}` : 'none' }}
             >
-                <div 
-                   className={`shrink-0 w-[3.2em] h-[3.2em] rounded-[0.8em] flex flex-col items-center justify-center relative overflow-hidden ${hasBg ? 'border border-white/5' : ''}`} 
+                <div
+                   className={`shrink-0 w-[3.2em] h-[3.2em] rounded-[0.8em] flex flex-col items-center justify-center relative overflow-hidden ${hasBg ? 'border border-white/5' : ''}`}
                    style={{ backgroundColor: `rgba(0,0,0,${cardOpacity / 100})` }}
                 >
                     <div className="absolute inset-0 opacity-20 blur-md" style={{ backgroundColor: accentColorForEvent }}></div>
-                    <span className="relative z-10 text-[1.2em] font-bold tracking-tight leading-none">{dateLabel}</span>
-                    <span className="relative z-10 text-[0.6em] uppercase tracking-wider opacity-80 mt-[0.2em]" style={{ color: accentColorForEvent }}>{dayLabel}</span>
+                    {/* Card-Box: Monat klein oben, große Zahl unten. Wochentag
+                        wandert in die Subtitle bei der Uhrzeit (rechts neben
+                        der Box) — wie bei Apple Calendar / Fantastical. */}
+                    <span className="relative z-10 text-[0.6em] uppercase tracking-wider opacity-80" style={{ color: accentColorForEvent }}>{monthLabel}</span>
+                    <span className="relative z-10 text-[1.4em] font-bold tracking-tight leading-none">{dateLabel}</span>
                 </div>
                 <div className="flex flex-col min-w-0 flex-1">
                     <span className="font-bold tracking-tight text-[0.9em] leading-tight text-ellipsis whitespace-nowrap overflow-hidden">
                         {ev.title}
                     </span>
                     <span className="text-white/50 text-[0.7em] font-mono tracking-wider uppercase mt-[0.2em]">
-                        {timeStr}
+                        {!hideWeekday && <>{weekdayLabel} · </>}{timeStr}
                     </span>
                 </div>
             </div>
