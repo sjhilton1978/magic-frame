@@ -82,7 +82,7 @@ export default function InspectorPanel(props: InspectorPanelProps) {
             {typeLabel}
           </div>
           <div className="text-sm font-semibold text-white truncate">
-            {activeWidget.label}
+            {t(activeWidget.label)}
           </div>
         </div>
         <button
