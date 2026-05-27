@@ -119,7 +119,7 @@ function MobileEditorInner() {
         setCurrentDashboardId(effectiveId);
         loadLayoutForDashboard(effectiveId);
       } else {
-        setDashboards([{ id: "1", name: "View 1" }]);
+        setDashboards([{ id: "1", name: t("View 1") }]);
       }
     } catch (err) {
       console.error(err);
@@ -148,7 +148,7 @@ function MobileEditorInner() {
       });
       const data = await res.json();
       if (data.error) {
-        alert(data.error);
+        alert(t(data.error));
         return;
       }
       setShowDashboardSettings(false);
@@ -204,9 +204,9 @@ function MobileEditorInner() {
   const addWidget = (type: string) => {
     const newId = Math.random().toString(36).substring(7);
     let label = type.replace("Widget.tsx", "");
-    if (type === "ClockWidget.tsx") label = "Uhr";
-    if (type === "WeatherWidget.tsx") label = "Wetter";
-    if (type === "HomeAssistantWidget.tsx") label = "HA Entity";
+    if (type === "ClockWidget.tsx") label = t("Uhr");
+    if (type === "WeatherWidget.tsx") label = t("Wetter");
+    if (type === "HomeAssistantWidget.tsx") label = t("HA Entity");
 
     const newWidget: WidgetLayoutItem = {
       i: newId,
@@ -286,7 +286,7 @@ function MobileEditorInner() {
 
   const fetchWebdavFolders = async (path: string = "/") => {
     if (!wallpaper.webdavUrl || !wallpaper.webdavUser || !wallpaper.webdavPass) {
-      setWebdavError("Bitte URL, Benutzer und Passwort ausfüllen.");
+      setWebdavError(t("Bitte URL, Benutzer und Passwort ausfüllen."));
       return;
     }
     setIsFetchingFolders(true);
@@ -304,7 +304,7 @@ function MobileEditorInner() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Unbekannter Fehler");
+      if (!res.ok) throw new Error(data.error || t("Unbekannter Fehler"));
       setWebdavFolders(data.folders);
       setWallpaper((prev) => ({ ...prev, webdavPath: path }));
     } catch (err: any) {
@@ -316,7 +316,7 @@ function MobileEditorInner() {
 
   const fetchImmichAlbums = async () => {
     if (!wallpaper.immichUrl || !wallpaper.immichApiKey) {
-      setImmichError("Bitte Immich-URL und API-Key ausfüllen.");
+      setImmichError(t("Bitte Immich-URL und API-Key ausfüllen."));
       return;
     }
     setIsFetchingAlbums(true);
@@ -328,10 +328,10 @@ function MobileEditorInner() {
         body: JSON.stringify({ url: wallpaper.immichUrl, apiKey: wallpaper.immichApiKey }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Unbekannter Fehler");
+      if (!res.ok) throw new Error(data.error || t("Unbekannter Fehler"));
       setImmichAlbums(data.albums || []);
       if ((data.albums || []).length === 0) {
-        setImmichError("Keine Alben gefunden — hat der API-Key Album-Rechte?");
+        setImmichError(t("Keine Alben gefunden — hat der API-Key Album-Rechte?"));
       }
     } catch (err: any) {
       setImmichError(err.message);
@@ -518,7 +518,7 @@ function MobileEditorInner() {
                 icon={<Plus size={18} />}
                 label={t("Neues Dashboard")}
                 onClick={() => {
-                  setEditDashboardName("Neues Dashboard");
+                  setEditDashboardName(t("Neues Dashboard"));
                   setEditDashboardSlug("neu");
                   setCurrentDashboardId("");
                   setShowMenu(false);

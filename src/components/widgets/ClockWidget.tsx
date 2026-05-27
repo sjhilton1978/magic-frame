@@ -6,7 +6,7 @@ import { wmoToIcon, wmoToText } from "@/lib/weather/wmo";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 export default function ClockWidget({ config }: { config?: any }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const dateLocale = locale === "en" ? "en-GB" : "de-DE";
   const [time, setTime] = useState<Date | null>(null);
   const [weather, setWeather] = useState<any>(null);
@@ -137,7 +137,7 @@ export default function ClockWidget({ config }: { config?: any }) {
                    {wmoToIcon(weather.current.weather_code, isDay, config.iconSet)}
                 </div>
                 <span style={{ fontSize: '1.2em' }} className="font-bold drop-shadow-md tracking-wide">
-                   {config.location ? config.location.split(',')[0] : 'Weather'}, {Math.round(weather.current.temperature_2m)}{unitTemp === "fahrenheit" ? "°F" : "°C"}
+                   {config.location ? config.location.split(',')[0] : t("Wetter")}, {Math.round(weather.current.temperature_2m)}{unitTemp === "fahrenheit" ? "°F" : "°C"}
                 </span>
              </div>
              {/* Subtext */}

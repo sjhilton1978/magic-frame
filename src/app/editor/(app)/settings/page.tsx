@@ -234,8 +234,8 @@ export default function SettingsPage() {
 }
 
 function LanguageCard() {
-  const t = useT();
   const { locale, setLocale } = useLocale();
+  const t = useT();
   return (
     <Card
       icon={<Languages size={18} />}
@@ -325,6 +325,7 @@ function Card({
 }
 
 function Banner({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
+  const t = useT();
   return (
     <div
       className={`flex items-center gap-2 text-sm rounded-lg border px-3 py-2 ${
@@ -334,7 +335,7 @@ function Banner({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
       }`}
     >
       {kind === "ok" ? <Check size={15} /> : <AlertTriangle size={15} />}
-      <span>{msg}</span>
+      <span>{t(msg)}</span>
     </div>
   );
 }
@@ -360,7 +361,7 @@ function ShortcutTokenCard() {
   }, []);
 
   async function rotate() {
-    if (!confirm("Neuen Shortcut-Token erzeugen? Alle bestehenden Shortcuts müssen aktualisiert werden.")) return;
+    if (!confirm(t("Neuen Shortcut-Token erzeugen? Alle bestehenden Shortcuts müssen aktualisiert werden."))) return;
     setRotating(true);
     try {
       const r = await fetch("/api/auth/shortcut-token", { method: "POST" });
@@ -391,7 +392,7 @@ function ShortcutTokenCard() {
     >
       <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg px-3 py-2 mb-3">
         <code className="flex-1 text-xs font-mono text-white/80 truncate">
-          {loading ? "lade…" : revealed && token ? token : token ? "••••••••••••••••••••••••••••" : "—"}
+          {loading ? t("lade…") : revealed && token ? token : token ? "••••••••••••••••••••••••••••" : "—"}
         </code>
         <button onClick={() => setRevealed((v) => !v)} className="text-xs text-white/50 hover:text-white px-2 h-7">
           {revealed ? t("verbergen") : t("anzeigen")}
@@ -407,11 +408,11 @@ function ShortcutTokenCard() {
         <button
           onClick={rotate}
           disabled={rotating}
-          title="Neuen Token erzeugen"
+          title={t("Neuen Token erzeugen")}
           className="text-xs text-red-300 hover:text-red-200 bg-red-500/10 hover:bg-red-500/20 rounded-md px-2 h-7 flex items-center gap-1 disabled:opacity-40"
         >
           <RefreshCw size={12} className={rotating ? "animate-spin" : ""} />
-          Rotate
+          {t("Rotate")}
         </button>
       </div>
       <div className="text-xs text-white/60 space-y-1">
@@ -420,8 +421,8 @@ function ShortcutTokenCard() {
           POST {base}/api/timers?key=TOKEN&label=Pasta&minutes=10
         </div>
         <p className="text-white/40 mt-2">
-          Alle Endpoints, Socket-Events und Beispiele:{" "}
-          <a href="/docs/companion-api.md" className="text-emerald-400 hover:underline">docs/companion-api.md</a> (im Repo).
+          {t("Alle Endpoints, Socket-Events und Beispiele:")}{" "}
+          <a href="/docs/companion-api.md" className="text-emerald-400 hover:underline">docs/companion-api.md</a> {t("(im Repo).")}
         </p>
       </div>
     </Card>
@@ -502,7 +503,7 @@ function HAListsCard() {
     try {
       const r = await fetch("/api/ha-lists", { cache: "no-store" });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Konnte HA-Listen nicht laden.");
+      if (!r.ok) throw new Error(d.error || t("Konnte HA-Listen nicht laden."));
       setLists(d.lists ?? []);
     } catch (e: any) {
       setError(e.message);
@@ -955,7 +956,7 @@ function DDNSCard() {
               >
                 {providers.map((p) => (
                   <option key={p.name} value={p.name}>
-                    {p.label}
+                    {t(p.label)}
                   </option>
                 ))}
               </select>
@@ -975,7 +976,7 @@ function DDNSCard() {
 
             {activeProvider && (
               <div className="sm:col-span-2 text-[12px] text-white/50 -mt-1 mb-1">
-                {activeProvider.description}
+                {t(activeProvider.description)}
               </div>
             )}
 
@@ -989,7 +990,7 @@ function DDNSCard() {
               return (
                 <div key={fieldId} className={wide ? "sm:col-span-2" : ""}>
                   <label className="block text-[11px] text-white/50 mb-1">
-                    {f.label}
+                    {t(f.label)}
                     {f.required ? "" : <span className="text-white/30"> ({t("optional")})</span>}
                   </label>
                   {isPw ? (
@@ -1021,7 +1022,7 @@ function DDNSCard() {
                     />
                   )}
                   {f.help && (
-                    <div className="text-[11px] text-white/40 mt-1">{f.help}</div>
+                    <div className="text-[11px] text-white/40 mt-1">{t(f.help)}</div>
                   )}
                 </div>
               );
@@ -1145,7 +1146,7 @@ function CaddyCard() {
         body: JSON.stringify(cfg),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Speichern fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Speichern fehlgeschlagen."));
       if (d.warnings?.length) setWarnings(d.warnings);
       if (d.error) flash("err", d.error);
       else if (d.reloaded) flash("ok", t("Caddy reloaded. Wenn Domain neu: Cert wird im Hintergrund geholt (ein paar Sekunden)."));
@@ -1164,7 +1165,7 @@ function CaddyCard() {
     try {
       const r = await fetch("/api/admin/caddy/reload", { method: "POST" });
       const d = await r.json();
-      if (!r.ok || d.error) throw new Error(d.error || "Reload fehlgeschlagen.");
+      if (!r.ok || d.error) throw new Error(d.error || t("Reload fehlgeschlagen."));
       if (d.warnings?.length) setWarnings(d.warnings);
       flash("ok", t("Caddy reloaded."));
       load();
@@ -1296,7 +1297,7 @@ function CaddyCard() {
                 value={cfg.customCaddyfile}
                 onChange={(e) => setCfg({ ...cfg, customCaddyfile: e.target.value })}
                 rows={14}
-                placeholder={`# Beispiel:\nmydomain.example.com {\n    tls {\n        dns gandi {env.GANDI_TOKEN}\n    }\n    reverse_proxy app:3000\n}`}
+                placeholder={`# ${t("Beispiel:")}\nmydomain.example.com {\n    tls {\n        dns gandi {env.GANDI_TOKEN}\n    }\n    reverse_proxy app:3000\n}`}
                 className={`${inputCls} font-mono text-[12px] h-auto min-h-[200px]`}
                 spellCheck={false}
               />
@@ -1420,7 +1421,7 @@ function CaddyCard() {
                     >
                       {providers.map((p) => (
                         <option key={p.name} value={p.name}>
-                          {p.label}
+                          {t(p.label)}
                         </option>
                       ))}
                     </select>
@@ -1439,7 +1440,7 @@ function CaddyCard() {
                     return (
                       <div key={fid} className={isPw ? "sm:col-span-2" : ""}>
                         <label className="block text-[11px] text-white/50 mb-1">
-                          {f.label}
+                          {t(f.label)}
                           {!f.required && <span className="text-white/30"> ({t("optional")})</span>}
                         </label>
                         {isPw ? (
@@ -1474,7 +1475,7 @@ function CaddyCard() {
                             className={inputCls}
                           />
                         )}
-                        {f.help && <div className="text-[11px] text-white/40 mt-1">{f.help}</div>}
+                        {f.help && <div className="text-[11px] text-white/40 mt-1">{t(f.help)}</div>}
                       </div>
                     );
                   })}
@@ -1570,7 +1571,7 @@ function TwoFactorCard() {
     try {
       const r = await fetch("/api/auth/2fa/setup", { cache: "no-store" });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Setup fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Setup fehlgeschlagen."));
       if (d.enabled) {
         setEnabled(true);
         return;
@@ -1593,7 +1594,7 @@ function TwoFactorCard() {
         body: JSON.stringify({ code }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Code ungültig.");
+      if (!r.ok) throw new Error(d.error || t("Code ungültig."));
       setEnabled(true);
       setSetupOpen(false);
       setSetup(null);
@@ -1628,7 +1629,7 @@ function TwoFactorCard() {
         body: JSON.stringify({ password: disablePw }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Deaktivieren fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Deaktivieren fehlgeschlagen."));
       setEnabled(false);
       setDisablePw("");
       setNewCodes(null);
@@ -1654,7 +1655,7 @@ function TwoFactorCard() {
         body: JSON.stringify({ password: regenPw }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Regenerierung fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Regenerierung fehlgeschlagen."));
       setNewCodes(d.recoveryCodes);
       setRegenPw("");
       flash("ok", t("Neue Recovery-Codes erzeugt. Alte sind nicht mehr gültig."));
@@ -1701,7 +1702,7 @@ function TwoFactorCard() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={setup.qr}
-              alt="2FA QR"
+              alt={t("2FA QR")}
               className="bg-white p-2 rounded-lg w-44 h-44 shrink-0"
             />
             <div className="text-xs text-white/60 space-y-2">
@@ -1898,7 +1899,7 @@ function LoginSecurityCard() {
         body: JSON.stringify(cfg),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Speichern fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Speichern fehlgeschlagen."));
       flash("ok", t("Sicherheitseinstellungen gespeichert."));
       load();
     } catch (e: any) {
@@ -2122,11 +2123,11 @@ function PasswordCard() {
     e.preventDefault();
     setMsg(null);
     if (next !== confirm) {
-      setMsg({ kind: "err", msg: "Neue Passwörter stimmen nicht überein." });
+      setMsg({ kind: "err", msg: t("Neue Passwörter stimmen nicht überein.") });
       return;
     }
     if (next.length < 8) {
-      setMsg({ kind: "err", msg: "Neues Passwort muss mindestens 8 Zeichen haben." });
+      setMsg({ kind: "err", msg: t("Neues Passwort muss mindestens 8 Zeichen haben.") });
       return;
     }
     setBusy(true);
@@ -2137,8 +2138,8 @@ function PasswordCard() {
         body: JSON.stringify({ currentPassword: cur, newPassword: next }),
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || "Fehlgeschlagen.");
-      setMsg({ kind: "ok", msg: "Passwort geändert." });
+      if (!r.ok) throw new Error(d.error || t("Fehlgeschlagen."));
+      setMsg({ kind: "ok", msg: t("Passwort geändert.") });
       setCur("");
       setNext("");
       setConfirm("");
@@ -2241,11 +2242,11 @@ function UsersCard() {
         body: JSON.stringify({ email, password, role }),
       });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || "Fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Fehlgeschlagen."));
       setEmail("");
       setPassword("");
       setRole("admin");
-      setMsg({ kind: "ok", msg: "Nutzer angelegt." });
+      setMsg({ kind: "ok", msg: t("Nutzer angelegt.") });
       await reload();
     } catch (err: any) {
       setMsg({ kind: "err", msg: err.message });
@@ -2255,12 +2256,12 @@ function UsersCard() {
   }
 
   async function removeUser(id: string, mail: string) {
-    if (!confirm(`Nutzer ${mail} wirklich löschen?`)) return;
+    if (!confirm(`${t("Nutzer")} ${mail} ${t("wirklich löschen?")}`)) return;
     setMsg(null);
     try {
       const r = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || "Fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Fehlgeschlagen."));
       await reload();
     } catch (err: any) {
       setMsg({ kind: "err", msg: err.message });
@@ -2300,7 +2301,7 @@ function UsersCard() {
                 <div className="text-sm text-white truncate">
                   {u.email}
                   {u.id === currentUserId && (
-                    <span className="text-[10px] text-white/40 ml-2">(du)</span>
+                    <span className="text-[10px] text-white/40 ml-2">{t("(du)")}</span>
                   )}
                 </div>
                 <div className="text-[11px] text-white/40">
@@ -2327,14 +2328,14 @@ function UsersCard() {
         <form onSubmit={addUser} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-center">
           <input
             type="email"
-            placeholder="email@beispiel.de"
+            placeholder={t("email@beispiel.de")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={inputCls}
           />
           <input
             type="text"
-            placeholder="Passwort (≥ 8 Zeichen)"
+            placeholder={t("Passwort (≥ 8 Zeichen)")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={inputCls}
@@ -2358,8 +2359,8 @@ function UsersCard() {
         </form>
       ) : (
         <p className="text-xs text-white/40">
-          Du bist als <strong className="text-white/70">Nur-Ansehen</strong> angemeldet —
-          Nutzer-Verwaltung ist Admins vorbehalten.
+          {t("Du bist als")} <strong className="text-white/70">{t("Nur-Ansehen")}</strong> {t("angemeldet —")}
+          {t("Nutzer-Verwaltung ist Admins vorbehalten.")}
         </p>
       )}
     </Card>
@@ -2495,7 +2496,7 @@ function SessionCard() {
   }, []);
 
   async function logout() {
-    if (!confirm("Auf diesem Gerät abmelden?")) return;
+    if (!confirm(t("Auf diesem Gerät abmelden?"))) return;
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/login";
   }
@@ -2521,7 +2522,7 @@ function SessionCard() {
             />
             <Stat label="SameSite" value={info.sameSite} />
             <Stat label="HttpOnly" value={info.httpOnly ? "ja" : "nein"} tone={info.httpOnly ? "ok" : "warn"} />
-            <Stat label="Gültigkeit" value={`${info.lifetimeDays} Tage`} />
+            <Stat label="Gültigkeit" value={`${info.lifetimeDays} ${t("Tage")}`} />
             <Stat
               label="Session-Secret"
               value={info.secretStrength}
@@ -2537,15 +2538,12 @@ function SessionCard() {
           </button>
 
           <div className="mt-4 bg-black/30 border border-white/10 rounded-lg p-3 text-[11px] text-white/40 leading-relaxed">
-            <strong className="text-white/60">Alle Geräte abmelden / Secret rotieren:</strong>{" "}
-            Das Session-Secret ist bewusst nur per Umgebungsvariable{" "}
+            <strong className="text-white/60">{t("Alle Geräte abmelden / Secret rotieren:")}</strong>{" "}
+            {t("Das Session-Secret ist bewusst nur per Umgebungsvariable")}{" "}
             <code className="bg-white/10 px-1 rounded text-white/60">SESSION_SECRET</code>{" "}
-            (≥ 32 Zeichen) setzbar — ein Rotieren per Klick wäre ein Sicherheitsrisiko.
-            Beim Ändern + Redeploy werden alle bestehenden Sessions automatisch
-            ungültig (alte Cookies sind nicht mehr entschlüsselbar). Gleiches gilt
-            für{" "}
+            {t("(≥ 32 Zeichen) setzbar — ein Rotieren per Klick wäre ein Sicherheitsrisiko. Beim Ändern + Redeploy werden alle bestehenden Sessions automatisch ungültig (alte Cookies sind nicht mehr entschlüsselbar). Gleiches gilt für")}{" "}
             <code className="bg-white/10 px-1 rounded text-white/60">COOKIE_SECURE=true</code>{" "}
-            (erzwingt HTTPS-only-Cookies).
+            {t("(erzwingt HTTPS-only-Cookies).")}
           </div>
         </>
       )}

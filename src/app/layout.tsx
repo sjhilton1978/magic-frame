@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s · Magic Frame",
   },
   description:
-    "Magic Frame – Smart-Display-Dashboard für Tablets und TVs mit Home-Assistant-, Wetter- und Kalender-Widgets.",
+    "Magic Frame – smart-display dashboard for tablets and TVs with Home Assistant, weather and calendar widgets.",
   applicationName: "Magic Frame",
   appleWebApp: {
     capable: true,

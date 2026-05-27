@@ -157,7 +157,7 @@ function FeedsEditor({
     raw.length > 0
       ? raw.map((f, i) => ({
           id: f.id ?? `feed-${i}`,
-          label: f.label ?? `Kalender ${i + 1}`,
+          label: f.label ?? `${t("Kalender")} ${i + 1}`,
           type: (f.type as FeedType) ?? "ical",
           url: f.url ?? "",
           accountId: f.accountId ?? "",
@@ -167,7 +167,7 @@ function FeedsEditor({
       : legacyUrl
         ? [{
             id: "feed-legacy",
-            label: "Kalender",
+            label: t("Kalender"),
             type: "ical",
             url: legacyUrl,
             color: legacyColor,
@@ -270,7 +270,7 @@ function FeedsEditor({
               ...feeds,
               {
                 id: `feed-${Date.now()}`,
-                label: feeds.length === 0 ? "iCal-Kalender" : `Kalender ${feeds.length + 1}`,
+                label: feeds.length === 0 ? t("iCal-Kalender") : `${t("Kalender")} ${feeds.length + 1}`,
                 type: "ical",
                 url: "",
                 color: ["#8B5CF6", "#10B981", "#F59E0B", "#3B82F6", "#EF4444", "#06B6D4"][feeds.length % 6],
@@ -402,7 +402,9 @@ function ProviderFeedBody({
           href="/editor/integrations"
           className="block text-xs text-center text-white/60 hover:text-white bg-black/40 border border-white/10 rounded-md h-9 leading-9 hover:border-violet-500/40"
         >
-          {t("Noch kein Konto verbunden → Integrationen öffnen").replace("Konto", feed.type === "google" ? "Google-Konto" : "Microsoft-Konto")}
+          {feed.type === "google"
+            ? t("Noch kein Google-Konto verbunden → Integrationen öffnen")
+            : t("Noch kein Microsoft-Konto verbunden → Integrationen öffnen")}
         </a>
       ) : (
         <select

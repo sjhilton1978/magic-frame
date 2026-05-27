@@ -64,14 +64,14 @@ function LoginForm() {
         return;
       }
       if (!res.ok) {
-        setError(data.error || "Login fehlgeschlagen.");
+        setError(data.error || t("Login fehlgeschlagen."));
         return;
       }
       const params = new URLSearchParams(window.location.search);
       router.replace(params.get("next") || "/editor");
       router.refresh();
     } catch {
-      setError("Netzwerkfehler. Bitte erneut versuchen.");
+      setError(t("Netzwerkfehler. Bitte erneut versuchen."));
     } finally {
       setLoading(false);
     }
@@ -92,7 +92,7 @@ function LoginForm() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "TOTP-Verifikation fehlgeschlagen.");
+        setError(data.error || t("TOTP-Verifikation fehlgeschlagen."));
         // Wenn Challenge abgelaufen → zurück zum Passwort-Step
         if (res.status === 408 || res.status === 400) {
           setTotpRequired(false);
@@ -105,7 +105,7 @@ function LoginForm() {
       router.replace(params.get("next") || "/editor");
       router.refresh();
     } catch {
-      setError("Netzwerkfehler. Bitte erneut versuchen.");
+      setError(t("Netzwerkfehler. Bitte erneut versuchen."));
     } finally {
       setLoading(false);
     }
@@ -209,7 +209,7 @@ function LoginForm() {
       </div>
       <h1 className="text-xl font-semibold text-center mb-1">{t("Anmelden")}</h1>
       <p className="text-sm text-white/50 text-center mb-6">
-        Magic Frame Editor
+        {t("Magic Frame Editor")}
       </p>
 
       <label className="block mb-4">
@@ -269,11 +269,11 @@ function SetupForm({ onDone }: { onDone: () => void }) {
     e.preventDefault();
     setError(null);
     if (password !== confirm) {
-      setError("Passwörter stimmen nicht überein.");
+      setError(t("Passwörter stimmen nicht überein."));
       return;
     }
     if (password.length < 8) {
-      setError("Passwort muss mindestens 8 Zeichen lang sein.");
+      setError(t("Passwort muss mindestens 8 Zeichen lang sein."));
       return;
     }
 
@@ -286,12 +286,12 @@ function SetupForm({ onDone }: { onDone: () => void }) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Anlegen fehlgeschlagen.");
+        setError(data.error || t("Anlegen fehlgeschlagen."));
         return;
       }
       onDone();
     } catch {
-      setError("Netzwerkfehler. Bitte erneut versuchen.");
+      setError(t("Netzwerkfehler. Bitte erneut versuchen."));
     } finally {
       setLoading(false);
     }

@@ -28,7 +28,7 @@ export default function IntegrationsModal({ onClose, settings, setSettings }: In
                 <input type="text" value={settings?.haUrl || ''} onChange={(e) => setSettings({ ...settings, haUrl: e.target.value })} placeholder="http://192.168.178.50:8123" className="w-full bg-black border border-white/10 text-white rounded-xl p-4 outline-none focus:border-cyan-500 transition-colors" />
              </div>
              <div>
-                <label className="text-sm font-medium text-white/80 block mb-2">Long-Lived Access Token</label>
+                <label className="text-sm font-medium text-white/80 block mb-2">{t("Long-Lived Access Token")}</label>
                 <input type="password" value={settings?.haToken || ''} onChange={(e) => setSettings({ ...settings, haToken: e.target.value })} placeholder="eyJhb..." className="w-full bg-black border border-white/10 text-white rounded-xl p-4 outline-none focus:border-cyan-500 transition-colors" />
              </div>
              <p className="text-xs text-white/40 mt-6 bg-white/5 p-4 rounded-xl border border-white/5">

@@ -107,7 +107,7 @@ export default function WallpaperSettingsModal({
 
                         {immichError && (
                            <div className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">
-                              {immichError}
+                              {t(immichError)}
                            </div>
                         )}
 
@@ -199,7 +199,7 @@ export default function WallpaperSettingsModal({
 
                    {webdavError && (
                       <div className="text-red-400 text-sm bg-red-400/10 p-3 rounded-lg border border-red-400/20">
-                         {webdavError}
+                         {t(webdavError)}
                       </div>
                    )}
 

@@ -979,4 +979,370 @@ export const EN: Record<string, string> = {
   "Lokal": "Local",
   "— Liste wählen —": "— Select list —",
   "Items werden direkt aus dem todo.* Entity gelesen/geschrieben.": "Items are read/written directly from the todo.* entity.",
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // v1.0.2 — i18n sweep: gaps closed across editor pages, inspectors, widgets,
+  // shared components, integrations, settings, login/setup.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Editor home / status strip
+  "HTTPS": "HTTPS",
+  "TLS": "TLS",
+  "HTTP": "HTTP",
+  "DDNS": "DDNS",
+  "Todoist": "Todoist",
+  "Lockouts": "Lockouts",
+  "Caddy: TLS aktiv für": "Caddy: TLS active for",
+  "Caddy läuft als HTTP-Proxy — keine TLS-Domain konfiguriert": "Caddy is running as HTTP proxy — no TLS domain configured",
+  "DDNS nicht konfiguriert": "DDNS not configured",
+  "aktive Login-Sperren — bitte prüfen": "active login lockouts — please review",
+  "OK": "OK",
+  "Offline": "Offline",
+  "Docs": "Docs",
+
+  // Login / setup
+  "Magic Frame Editor": "Magic Frame Editor",
+  "TOTP-Verifikation fehlgeschlagen.": "TOTP verification failed.",
+
+  // Settings — Shortcut token, Todoist hint, DDNS hint, 2FA, sessions, mobile
+  "Dein persönlicher API-Key für externe Clients (iOS-Shortcuts, Android-Tasker, curl, die kommende Companion-App).":
+    "Your personal API key for external clients (iOS Shortcuts, Android Tasker, curl, the upcoming companion app).",
+  "Neuen Shortcut-Token erzeugen? Alle bestehenden Shortcuts müssen aktualisiert werden.":
+    "Generate a new shortcut token? All existing shortcuts will need to be updated.",
+  "Neuen Token erzeugen": "Generate new token",
+  "Rotate": "Rotate",
+  "Alle Endpoints, Socket-Events und Beispiele:": "All endpoints, socket events and examples:",
+  "(im Repo).": "(in the repo).",
+  "Beispiel:": "Example:",
+  "Nutze deine Todoist-Projekte als Quelle für Todos- und Einkaufslisten-Widgets. Setze einen API-Token (Todoist → Einstellungen → Integrationen → Entwickler → API-Token), danach erscheint Todoist im Quelle-Dropdown der Widgets.":
+    "Use your Todoist projects as a source for to-do and shopping-list widgets. Set an API token (Todoist → Settings → Integrations → Developer → API token), then Todoist appears in the source dropdown of the widgets.",
+  "Hält deinen DNS-A-Record automatisch auf der aktuellen öffentlichen IP. Cloudflare, Hetzner DNS und alle DynDNS-v2-kompatiblen Dienste (Strato, No-IP, DuckDNS, IONOS …) werden unterstützt.":
+    "Keeps your DNS A record automatically pointed at your current public IP. Cloudflare, Hetzner DNS and all DynDNS-v2-compatible services (Strato, No-IP, DuckDNS, IONOS …) are supported.",
+  "Setup fehlgeschlagen.": "Setup failed.",
+  "Code ungültig.": "Invalid code.",
+  "Deaktivieren fehlgeschlagen.": "Deactivation failed.",
+  "Regenerierung fehlgeschlagen.": "Regeneration failed.",
+  "2FA QR": "2FA QR",
+  "Reload fehlgeschlagen.": "Reload failed.",
+  "Nur-Ansehen": "View-only",
+  "(du)": "(you)",
+  "Alle Geräte abmelden / Secret rotieren:": "Sign out everywhere / rotate secret:",
+  "Das Session-Secret ist bewusst nur per Umgebungsvariable":
+    "The session secret is intentionally only settable via environment variable",
+  "(≥ 32 Zeichen) setzbar — ein Rotieren per Klick wäre ein Sicherheitsrisiko. Beim Ändern + Redeploy werden alle bestehenden Sessions automatisch ungültig (alte Cookies sind nicht mehr entschlüsselbar). Gleiches gilt für":
+    "(≥ 32 characters) — rotating it via a click would be a security risk. Changing it + redeploying invalidates all existing sessions automatically (old cookies are no longer decryptable). The same applies to",
+  "(erzwingt HTTPS-only-Cookies).": "(forces HTTPS-only cookies).",
+  "email@beispiel.de": "email@example.com",
+  "wirklich löschen?": "really delete?",
+  "View 1": "View 1",
+
+  // Integrations — calendar accounts, OAuth credentials, errors
+  "schließen": "close",
+  "kein E-Mail ermittelbar": "no email available",
+  "Konto wirklich trennen? Alle Feeds, die dieses Konto nutzen, werden ungültig.":
+    "Really disconnect this account? All feeds using it will be invalidated.",
+  "Microsoft-Konto": "Microsoft account",
+  "erfolgreich verbunden.": "successfully connected.",
+  "Provider ist serverseitig nicht konfiguriert (GOOGLE_CLIENT_ID / MS_CLIENT_ID fehlt in .env).":
+    "Provider is not configured on the server (GOOGLE_CLIENT_ID / MS_CLIENT_ID missing in .env).",
+  "Autorisierung abgebrochen — kein Code vom Anbieter.":
+    "Authorization cancelled — no code from the provider.",
+  "State-Parameter ungültig (Session oder CSRF-Check fehlgeschlagen).":
+    "Invalid state parameter (session or CSRF check failed).",
+  "Token-Tausch fehlgeschlagen — Redirect-URI oder Secret falsch?":
+    "Token exchange failed — wrong redirect URI or secret?",
+  "Unbekannter Fehler bei der Verknüpfung.": "Unknown error during linking.",
+  "Zugangsdaten gespeichert. Die Verbinden-Buttons sind jetzt aktiv.":
+    "Credentials saved. The Connect buttons are now active.",
+  "Gespeicherte OAuth-Zugangsdaten löschen?": "Delete saved OAuth credentials?",
+  "Client-ID (…apps.googleusercontent.com)": "Client ID (…apps.googleusercontent.com)",
+  "Secret gesetzt — leer = unverändert": "Secret set — empty = unchanged",
+  "Client-Secret": "Client secret",
+  "Application (Client) ID": "Application (client) ID",
+  "Client-Secret (Value)": "Client secret (value)",
+  "Aktuell aus .env (env hat Vorrang, falls hier leer).":
+    "Currently from .env (env wins if this field is empty).",
+  "Einmalig eine OAuth-App bei Google Cloud bzw. Microsoft Entra anlegen, dann Client-ID + Secret hier eintragen — danach läuft das Verbinden per Klick & Zustimmung. Trage bei der App-Registrierung diese Redirect-URIs ein:":
+    "Create an OAuth app once in Google Cloud or Microsoft Entra, then enter Client ID + secret here — afterwards connecting works with a click and a consent screen. Add these redirect URIs in the app registration:",
+  "Zurücksetzen": "Reset",
+  "Speichern fehlgeschlagen.": "Save failed.",
+
+  // Modules / Backups / Views pages
+  "Diese Widget-Typen stehen dir zur Verfügung. Eigene Custom-Module kannst du unten direkt als JS-Bundle hochladen — Hot-Loading, kein Container-Restart nötig.":
+    "These widget types are available. You can upload your own custom modules as a JS bundle below — hot-loaded, no container restart needed.",
+  "Custom-Module": "Custom modules",
+  "Hochgeladen + sofort aktiv im View-Editor. Build aus deinem Modul-Source mit":
+    "Uploaded + instantly active in the view editor. Build from your module source with",
+  "— Doku in": "— docs in",
+  "Konnte Datei nicht lesen.": "Could not read file.",
+  "Bitte module.json UND bundle.js auswählen.": "Please pick both module.json AND bundle.js.",
+  "module.json ist kein valides JSON.": "module.json is not valid JSON.",
+  "Upload fehlgeschlagen.": "Upload failed.",
+  "Modul '{x}' hochgeladen ({y} Bytes). Im View-Editor verfügbar.":
+    "Module '{x}' uploaded ({y} bytes). Available in the view editor.",
+  "Lade hoch…": "Uploading…",
+  "Hochladen": "Upload",
+  "Noch keine Custom-Module hochgeladen. Beispiel:": "No custom modules uploaded yet. Example:",
+  "Modul '{x}' wirklich löschen? Views die es nutzen brechen.":
+    "Really delete module '{x}'? Views that use it will break.",
+  "Gelöscht.": "Deleted.",
+  "Felder": "fields",
+  "Bytes": "bytes",
+  "hochgeladen": "uploaded",
+  "Aktivieren": "Enable",
+  "Manifest": "Manifest",
+  "Konnte nicht angelegt werden.": "Could not be created.",
+  "Netzwerkfehler.": "Network error.",
+  "View „{name}“ wirklich löschen? Alle Widgets dieses Views gehen verloren.":
+    "Really delete view “{name}”? All widgets in this view will be lost.",
+  "URL-Pfad": "URL path",
+  "Keine Leerzeichen. Wird die URL auf dem Display.":
+    "No spaces. Becomes the URL on the display.",
+  "Anlegen & öffnen": "Create & open",
+  "Details:": "Details:",
+  "Speichern fehlgeschlagen": "Save failed",
+  "unbekannt": "unknown",
+  "Netzwerkfehler beim Speichern. Details in der Konsole.":
+    "Network error while saving. Details in the console.",
+  "Metadaten Platzhalter": "Metadata placeholder",
+  "07. Juli 2025": "07 July 2025",
+  "München": "Munich",
+  "Shot on iPhone": "Shot on iPhone",
+
+  // Shared editor components — IconPicker, IntegrationsModal
+  "Keine Treffer für": "No matches for",
+  "Schnellauswahl": "Quick picks",
+  "Long-Lived Access Token": "Long-lived access token",
+
+  // Inspectors — Calendar / Button / HA / HA-Notification / Companion
+  "iCal-Kalender": "iCal calendar",
+  "Noch kein Google-Konto verbunden → Integrationen öffnen":
+    "No Google account connected → open Integrations",
+  "Noch kein Microsoft-Konto verbunden → Integrationen öffnen":
+    "No Microsoft account connected → open Integrations",
+  "script.good_night  oder  light.turn_on": "script.good_night  or  light.turn_on",
+  "Btn": "Btn",
+  "z.B. switch.washer": "e.g. switch.washer",
+  "z.B. on": "e.g. on",
+  "z.B. off oder idle": "e.g. off or idle",
+  "z.B. binary_sensor.door": "e.g. binary_sensor.door",
+  "Timer werden per API/Shortcut gestartet.": "Timers are started via API/Shortcut.",
+  "Nachrichten per API:": "Messages via API:",
+  "Gemeinsame Familien-Einkaufsliste. Abhaken auf dem Board syncet live auf Phone und andere Displays. Artikel per Shortcut:":
+    "Shared family shopping list. Ticking items off on the board syncs live to phone and other displays. Add items via Shortcut:",
+  "Todos per Shortcut:": "To-dos via Shortcut:",
+  "Modul '{x}' nicht gefunden. Eventuell wurde es gelöscht oder deaktiviert.":
+    "Module '{x}' not found. It may have been deleted or disabled.",
+  "Dieses Modul hat keine konfigurierbaren Felder.":
+    "This module has no configurable fields.",
+
+  // Live widgets — HA notifications, Wallpaper Engine
+  "Bitte Notification-Regeln im Editor konfigurieren":
+    "Please configure notification rules in the editor",
+  "Thema": "Topic",
+  "Aufgenommen mit": "Shot on",
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // v1.0.2 — final i18n sweep, exhaustive pass
+  // Adds: API error parallels, settings Stat labels/values, DDNS provider
+  // metadata, banner-flow strings, OWM-credentials route messages, lockout
+  // error templates, calendar-account OAuth errors, misc UI gaps surfaced
+  // by the final audit.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // — Live-view runtime errors (HA, EventSource) —
+  "EventSource nicht verfügbar": "EventSource not available",
+
+  // — Runtime template errors (DDNS providers, custom modules) —
+  "Update-URL fehlt.": "Update URL missing.",
+  "Update-URL muss den Platzhalter {ip} enthalten.":
+    "Update URL must contain the {ip} placeholder.",
+
+  // — Module dev guide (STEPS.what strings on /editor/modules) —
+  "Die React-Komponente. \"use client\", Props { config, dashboardId? }, Größen in em.":
+    "The React component. \"use client\", props { config, dashboardId? }, sizes in em.",
+  "Live-Registry: import + eine Zeile in renderWidgetContent (rendert auf dem Display).":
+    "Live registry: import + one line in renderWidgetContent (renders on the display).",
+  "Editor-Katalog: WIDGET_CATALOG, WIDGET_ACCENT, widgetIconFor, addWidget.":
+    "Editor catalog: WIDGET_CATALOG, WIDGET_ACCENT, widgetIconFor, addWidget.",
+  "Config + Union-Mitglied (z.literal). PFLICHT — ohne Schema schlägt das Speichern fehl!":
+    "Config + union member (z.literal). REQUIRED — without a schema, saving fails!",
+  "Einstellungen rechts + Routing in InspectorPanel.tsx (ContentTab).":
+    "Settings on the right + routing in InspectorPanel.tsx (ContentTab).",
+  "WIDGET_META — Farbe + Icon im Views-Listen-Thumbnail (optional).":
+    "WIDGET_META — colour + icon in the views-list thumbnail (optional).",
+  "INSTALLED-Liste — damit das Modul hier als „Installiert\" auftaucht (optional).":
+    "INSTALLED list — so the module shows up here as “Installed” (optional).",
+
+  // — Generic Stat values + labels (Server / Session cards) —
+  "Node": "Node",
+  "SameSite": "SameSite",
+  "HttpOnly": "HttpOnly",
+  "Status": "Status",
+  "Last (1m)": "Load (1m)",
+  // "Sicherheit" already declared earlier as shorthand-key
+  "Layout": "Layout",
+  "Custom": "Custom",
+  "ja": "yes",
+  "nein": "no",
+
+  // — Confirms / banners / status —
+  "Auf diesem Gerät abmelden?": "Sign out on this device?",
+  "Gespeichert.": "Saved.",
+  "Token aktiv.": "Token active.",
+  "Verbleibende Recovery-Codes:": "Remaining recovery codes:",
+
+  // — API errors (auth / setup / 2FA / login / users / password) —
+  // These are returned by /api/* routes and rendered through t() at display sites.
+  "Interner Fehler.": "Internal error.",
+  "Setup bereits abgeschlossen — bitte einloggen.":
+    "Setup already complete — please sign in.",
+  "Ungültige Email-Adresse.": "Invalid email address.",
+  "Ungültige E-Mail.": "Invalid email.",
+  "Email und Passwort erforderlich.": "Email and password are required.",
+  "E-Mail und Passwort erforderlich.": "Email and password are required.",
+  // "Passwort muss mindestens 8 Zeichen lang sein." already declared earlier
+  "Passwort muss mindestens 8 Zeichen haben.": "Password must be at least 8 characters.",
+  "Aktuelles und neues Passwort erforderlich.":
+    "Current and new password are required.",
+  // "Neues Passwort muss mindestens 8 Zeichen haben." already declared earlier
+  "Neues Passwort muss sich vom aktuellen unterscheiden.":
+    "New password must differ from the current one.",
+  "Aktuelles Passwort ist falsch.": "Current password is incorrect.",
+  "Email oder Passwort falsch.": "Email or password incorrect.",
+  "Diese E-Mail ist bereits vergeben.": "This email is already taken.",
+  "Nutzer nicht gefunden.": "User not found.",
+  "User nicht gefunden.": "User not found.",
+  "Nur Admins dürfen Nutzer anlegen.": "Only admins can create users.",
+  "Nur Admins dürfen Nutzer löschen.": "Only admins can delete users.",
+  "Nur Admins dürfen API-Keys setzen.": "Only admins can set API keys.",
+  "Nur Admins dürfen OAuth-Zugangsdaten setzen.":
+    "Only admins can set OAuth credentials.",
+  "Nur Admins.": "Admins only.",
+  "Du kannst dich nicht selbst löschen.": "You can't delete yourself.",
+  "Der letzte Admin kann nicht gelöscht werden.":
+    "The last admin can't be deleted.",
+  "Passwort falsch.": "Wrong password.",
+  "2FA ist nicht aktiv.": "2FA is not active.",
+  "2FA ist bereits aktiv.": "2FA is already active.",
+  "2FA ist aktiv — bitte /disable verwenden.":
+    "2FA is active — please use /disable.",
+  "Bitte zuerst GET aufrufen, um ein Secret zu erzeugen.":
+    "Please call GET first to generate a secret.",
+  "Code ungültig — bitte aktuellen Code aus der Authenticator-App eingeben.":
+    "Invalid code — please enter the current code from your authenticator app.",
+  "Keine offene 2FA-Challenge.": "No open 2FA challenge.",
+  "2FA-Challenge abgelaufen — bitte neu einloggen.":
+    "2FA challenge expired — please sign in again.",
+  "Bitte neu einloggen.": "Please sign in again.",
+  "Recovery-Code ungültig.": "Recovery code invalid.",
+  "TOTP-Code ungültig.": "TOTP code invalid.",
+  "Snapshot nicht gefunden.": "Snapshot not found.",
+  "Wiederherstellen fehlgeschlagen.": "Restore failed.",
+  "Token wurde nicht akzeptiert (401). Bitte API-Token in Todoist neu erzeugen.":
+    "Token was not accepted (401). Please regenerate the API token in Todoist.",
+  "Google Client-ID fehlt — bitte unter Integrationen eintragen.":
+    "Google Client ID missing — please add it under Integrations.",
+  "Microsoft Client-ID fehlt — bitte unter Integrationen eintragen.":
+    "Microsoft Client ID missing — please add it under Integrations.",
+  "ungültiges dueDate (ISO 8601)": "invalid dueDate (ISO 8601)",
+  "ungültiges dueDate": "invalid dueDate",
+
+  // — Lockout error formats (templated) —
+  // The exact strings are templated at the API; we register the static parts here
+  // so plain `t()` finds them even though templates won't match exactly.
+  "Zu viele Fehlversuche für dieses Konto": "Too many failed attempts for this account",
+  "IP gesperrt. Bitte in {duration} erneut versuchen.":
+    "IP locked. Please try again in {duration}.",
+  "Konto gesperrt. Bitte in {duration} erneut versuchen.":
+    "Account locked. Please try again in {duration}.",
+
+  // — Immich albums API —
+  "Immich-URL und API-Key sind erforderlich.":
+    "Immich URL and API key are required.",
+  "API-Key ungültig oder hat keine Album-Leserechte.":
+    "API key invalid or has no album read permissions.",
+  "Zeitüberschreitung — ist die Immich-URL korrekt und im selben Netz erreichbar?":
+    "Timeout — is the Immich URL correct and reachable on the same network?",
+  "Konnte Immich nicht erreichen. URL korrekt? (z.B. http://192.168.x.x:2283)":
+    "Could not reach Immich. URL correct? (e.g. http://192.168.x.x:2283)",
+  "(ohne Name)": "(no name)",
+
+  // — DDNS providers (label / description / field labels / help / placeholder) —
+  "Cloudflare": "Cloudflare",
+  "Cloudflare DNS via API-Token (Zone:Read + DNS:Edit). Update via offizielle Cloudflare-API.":
+    "Cloudflare DNS via API token (Zone:Read + DNS:Edit). Update via the official Cloudflare API.",
+  "Token braucht Zone:Read + DNS:Edit für die Zone.":
+    "Token needs Zone:Read + DNS:Edit for the zone.",
+  "Hetzner DNS": "Hetzner DNS",
+  "Hetzner DNS via Auth-API-Token (in der Hetzner-DNS-Konsole erstellbar).":
+    "Hetzner DNS via Auth API token (create one in the Hetzner DNS console).",
+  "Auth-API-Token": "Auth API token",
+  "DNS-Console → Access Tokens → neuer Token.":
+    "DNS console → Access Tokens → new token.",
+  "Record-Name (FQDN oder Sub)": "Record name (FQDN or sub)",
+  "FQDN oder Sub-Name relativ zur Zone. „@\" = Apex.":
+    "FQDN or sub-name relative to the zone. “@” = apex.",
+  "Generisch (URL / DynDNS v2)": "Generic (URL / DynDNS v2)",
+  "Universell für Strato, No-IP, DuckDNS, All-Inkl, IONOS, Selfhost.de & alle DynDNS-v2-kompatiblen Dienste. URL mit {ip}-Platzhalter.":
+    "Universal for Strato, No-IP, DuckDNS, All-Inkl, IONOS, Selfhost.de & all DynDNS-v2-compatible services. URL with {ip} placeholder.",
+  "Update-URL": "Update URL",
+  "Platzhalter {ip} wird durch die aktuelle öffentliche IP ersetzt. Basic-Auth direkt in der URL möglich.":
+    "The {ip} placeholder is replaced with the current public IP. Basic-Auth directly in the URL is allowed.",
+  "Erfolg-Marker (optional)": "Success marker (optional)",
+  "Substring in der Antwort, der „IP wurde gesetzt\" bedeutet. Default: good":
+    "Substring in the response that means “IP set”. Default: good",
+  "Unverändert-Marker (optional)": "Unchanged marker (optional)",
+  "Substring, der „IP war schon korrekt\" bedeutet. Default: nochg":
+    "Substring that means “IP was already correct”. Default: nochg",
+
+  // — Caddy DNS providers (labels + fields + help) —
+  "AWS Route 53": "AWS Route 53",
+  "DigitalOcean": "DigitalOcean",
+  "DuckDNS": "DuckDNS",
+  "DuckDNS-Token": "DuckDNS token",
+  "Aus dem DuckDNS-Konto. Hostname muss in den DuckDNS-Domains existieren.":
+    "From your DuckDNS account. Hostname must exist among the DuckDNS domains.",
+  "Porkbun": "Porkbun",
+  "API-Key": "API key",
+  "API-Secret": "API secret",
+  "Namecheap": "Namecheap",
+  "Username": "Username",
+  "API-Endpoint (optional)": "API endpoint (optional)",
+  "IONOS": "IONOS",
+  "Aus dem IONOS Developer Portal (publicKey.secret).":
+    "From the IONOS Developer Portal (publicKey.secret).",
+  "Netcup": "Netcup",
+  "Kunden-Nr": "Customer no.",
+  "API-Passwort": "API password",
+  "Linode": "Linode",
+  "Cloudflare API-Token mit Zone:Read + DNS:Edit. Identisch zum DDNS-Token.":
+    "Cloudflare API token with Zone:Read + DNS:Edit. Identical to the DDNS token.",
+  "Hetzner DNS Console → Access Tokens. Identisch zum DDNS-Token.":
+    "Hetzner DNS Console → Access Tokens. Identical to the DDNS token.",
+  "AWS Access Key ID": "AWS Access Key ID",
+  "AWS Secret Access Key": "AWS Secret Access Key",
+  "AWS Region": "AWS Region",
+
+  // v1.0.2 — HA entity autocomplete (HAEntityInput component)
+  "Eintrag löschen": "Clear entry",
+  "Entities konnten nicht geladen werden": "Could not load entities",
+  "Keine passenden Entities": "No matching entities",
+
+  // v1.0.2 — IconPicker set filter
+  "Alle": "All",
+
+  // v1.0.2 — Views: edit + duplicate
+  // (note: "Bearbeiten", "Duplizieren", "Speichern", "Speichere…" are already
+  // in this dict — only the new strings are added here)
+  "Kopie": "Copy",
+  "View bearbeiten": "Edit view",
+  "View duplizieren": "Duplicate view",
+  "Anzeigename oder URL-Pfad ändern. Layout + Widgets bleiben erhalten.":
+    "Change display name or URL path. Layout + widgets stay intact.",
+  "Kopiert Layout + Widgets in einen neuen View. Original bleibt unverändert.":
+    "Copies layout + widgets into a new view. Original stays untouched.",
+  "Duplikat anlegen & öffnen": "Create duplicate & open",
+  "Ändert die URL auf dem Display. Bestehende Tablets müssen ggf. neu konfiguriert werden.":
+    "Changes the URL on the display. Existing tablets may need to be reconfigured.",
 };

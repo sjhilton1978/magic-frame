@@ -361,7 +361,7 @@ export default function HANotificationWidget({
     if (source === "rules" && rules.length === 0 && !hasTimers) {
         return (
             <div className="text-white/50 text-[10px] uppercase text-center">
-                Bitte Notification-Regeln im Editor konfigurieren
+                {tr("Bitte Notification-Regeln im Editor konfigurieren")}
             </div>
         );
     }
@@ -497,7 +497,7 @@ export default function HANotificationWidget({
                                 color: isDone ? accent : isLight ? "rgba(0,0,0,0.85)" : "rgba(255,255,255,0.95)",
                             }}
                         >
-                            {isDone ? "FERTIG" : clock}
+                            {isDone ? tr("FERTIG") : clock}
                         </span>
                     </div>
                 </div>

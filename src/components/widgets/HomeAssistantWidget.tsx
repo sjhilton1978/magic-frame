@@ -228,7 +228,7 @@ export default function HomeAssistantWidget({ config, onVisibilityChange }: { co
   const glass = useGlassStyle(config);
 
   if (slots.length === 0) return <div className="text-white/50 text-sm tracking-wide flex items-center justify-center p-4 text-center">{t("Bitte mindestens eine Entity-ID im Editor konfigurieren")}</div>;
-  if (error) return <div className="text-red-400 text-[0.8em]">{error}</div>;
+  if (error) return <div className="text-red-400 text-[0.8em]">{t(error)}</div>;
   if (Object.keys(statesDict).length === 0) return <div className="flex flex-col gap-2 w-full h-full justify-center">{slots.map((_, i) => <div key={i} className="animate-pulse bg-white/10 w-full h-[3em] rounded-full"></div>)}</div>;
   if (visibleCount === 0) return null; // Component hides correctly if all are hidden
 

@@ -118,7 +118,7 @@ function CustomModulesSection() {
     return new Promise((resolve, reject) => {
       const r = new FileReader();
       r.onload = () => resolve(String(r.result ?? ""));
-      r.onerror = () => reject(new Error("Konnte Datei nicht lesen."));
+      r.onerror = () => reject(new Error(t("Konnte Datei nicht lesen.")));
       r.readAsText(f);
     });
   }
@@ -145,7 +145,7 @@ function CustomModulesSection() {
         body: JSON.stringify({ manifest, bundleJs }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Upload fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Upload fehlgeschlagen."));
       flash(
         "ok",
         t("Modul '{x}' hochgeladen ({y} Bytes). Im View-Editor verfügbar.").replace("{x}", d.module.label).replace("{y}", String(d.module.bundleSize)),
@@ -209,7 +209,7 @@ function CustomModulesSection() {
 
       {msg && (
         <div className={`mb-3 text-sm rounded-lg p-3 border ${msg.kind === "ok" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300"}`}>
-          {msg.msg}
+          {t(msg.msg)}
         </div>
       )}
 
@@ -292,7 +292,7 @@ function CustomModulesSection() {
                   </button>
                   <button
                     onClick={() => setShowRaw((cur) => (cur === m.id ? null : m.id))}
-                    title="Manifest"
+                    title={t("Manifest")}
                     className="p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-white/70"
                   >
                     <FileCode size={14} />

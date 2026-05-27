@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Magic Frame",
     short_name: "MagicFrame",
     description:
-      "Magic Frame – Smart-Display-Dashboard für Tablets und TVs mit Home-Assistant-, Wetter- und Kalender-Widgets.",
+      "Magic Frame – smart-display dashboard for tablets and TVs with Home Assistant, weather and calendar widgets.",
     start_url: "/editor",
     scope: "/",
     display: "standalone",

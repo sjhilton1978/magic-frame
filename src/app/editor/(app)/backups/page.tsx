@@ -107,7 +107,7 @@ export default function BackupsPage() {
     try {
       const r = await fetch(`/api/admin/backups/snapshots/${s.id}/restore`, { method: "POST" });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Fehlgeschlagen.");
+      if (!r.ok) throw new Error(d.error || t("Fehlgeschlagen."));
       flash("ok", t("„{name}“ wiederhergestellt.").replace("{name}", s.dashboardName || s.dashboardId));
       await loadSnapshots();
     } catch (e: any) {
@@ -170,6 +170,7 @@ export default function BackupsPage() {
 }
 
 function Banner({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
+  const t = useT();
   return (
     <div
       className={`flex items-center gap-2 text-sm rounded-lg border px-3 py-2 ${
@@ -179,7 +180,7 @@ function Banner({ kind, msg }: { kind: "ok" | "err"; msg: string }) {
       }`}
     >
       {kind === "ok" ? <Check size={15} /> : <AlertTriangle size={15} />}
-      <span>{msg}</span>
+      <span>{t(msg)}</span>
     </div>
   );
 }

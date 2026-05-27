@@ -85,7 +85,7 @@ export default function WeatherWidget({ config, location, lat, lon }: { config?:
      return <div className="text-white/50 text-sm text-center">{t("Wetter")}<br/>({t("HA-Entity in Config eintragen, z.B. weather.home")})</div>;
   }
 
-  if (error) return <div className="text-red-400/80 text-sm text-center">⚠ {error}</div>;
+  if (error) return <div className="text-red-400/80 text-sm text-center">⚠ {t(error)}</div>;
   if (!data) return <div className="text-white/50 text-sm">{t("Lade Wetter…")}</div>;
 
   const tempSuffix = unitTemp === "fahrenheit" ? "°F" : "°";

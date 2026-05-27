@@ -32,7 +32,7 @@ export function TimerInspector({ widget, updateConfig }: Props) {
         label="Widget komplett ausblenden wenn kein Timer läuft"
       />
       <Hint>
-        Timer werden per API/Shortcut gestartet.{" "}
+        {t("Timer werden per API/Shortcut gestartet.")}{" "}
         <code className="text-white/60">POST /api/timers?key=TOKEN&label=Pasta&minutes=10</code>
       </Hint>
     </div>
@@ -62,7 +62,7 @@ export function MessagesInspector({ widget, updateConfig }: Props) {
         label="Widget komplett ausblenden wenn keine Nachrichten"
       />
       <Hint>
-        Nachrichten per API:{" "}
+        {t("Nachrichten per API:")}{" "}
         <code className="text-white/60">POST /api/messages?key=TOKEN&text=Hallo&ttlSec=3600</code>
       </Hint>
     </div>
@@ -70,6 +70,7 @@ export function MessagesInspector({ widget, updateConfig }: Props) {
 }
 
 export function ShoppingInspector({ widget, updateConfig }: Props) {
+  const t = useT();
   const hideAdd = (widget.config as any)?.hideAddForm ?? false;
   return (
     <div className="space-y-4">
@@ -80,8 +81,7 @@ export function ShoppingInspector({ widget, updateConfig }: Props) {
         label="Eingabe-Feld ausblenden (nur lesen)"
       />
       <Hint>
-        Gemeinsame Familien-Einkaufsliste. Abhaken auf dem Board syncet
-        live auf Phone und andere Displays. Artikel per Shortcut:{" "}
+        {t("Gemeinsame Familien-Einkaufsliste. Abhaken auf dem Board syncet live auf Phone und andere Displays. Artikel per Shortcut:")}{" "}
         <code className="text-white/60">POST /api/shopping?key=TOKEN&items=Milch,Brot,Käse</code>
       </Hint>
     </div>
@@ -119,7 +119,7 @@ export function TodosInspector({ widget, updateConfig }: Props) {
         label="Eingabe-Feld ausblenden (nur lesen)"
       />
       <Hint>
-        Todos per Shortcut:{" "}
+        {t("Todos per Shortcut:")}{" "}
         <code className="text-white/60">POST /api/todos?key=TOKEN&title=Müll+raus&assignee=Emma&priority=high</code>
       </Hint>
     </div>
@@ -242,7 +242,7 @@ function HASourceSelector({ widget, updateConfig }: Props) {
               {loading ? "…" : t("Aktualisieren")}
             </button>
           </div>
-          {error && <p className="text-[11px] text-red-400">{error}</p>}
+          {error && <p className="text-[11px] text-red-400">{t(error)}</p>}
           <p className="text-[11px] text-white/40">
             {t("Items werden direkt aus dem todo.* Entity gelesen/geschrieben.")}
           </p>
@@ -274,7 +274,7 @@ function HASourceSelector({ widget, updateConfig }: Props) {
               {loading ? "…" : t("Aktualisieren")}
             </button>
           </div>
-          {error && <p className="text-[11px] text-red-400">{error}</p>}
+          {error && <p className="text-[11px] text-red-400">{t(error)}</p>}
           <p className="text-[11px] text-white/40">
             {t("Aufgaben werden direkt via Todoist-REST-API gelesen + geschrieben. Token in Integrationen → Todoist setzen.")}
           </p>

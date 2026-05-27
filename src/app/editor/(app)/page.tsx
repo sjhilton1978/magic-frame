@@ -223,7 +223,7 @@ export default function EditorHome() {
         {/* Großer Header wie vorher */}
         <div className="mb-8">
           <div className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/40 mb-2">
-            Control Center
+            {t("Control Center")}
           </div>
           <h1 className="text-3xl font-semibold">{t("Willkommen zurück.")}</h1>
           <p className="text-white/50 mt-2 max-w-xl">
@@ -440,6 +440,7 @@ function SectionCard({
 /* ---------- Status-Strip ---------- */
 
 function StatusStrip({ status }: { status: Status }) {
+  const t = useT();
   const items: Array<{
     label: string;
     value: string;
@@ -449,54 +450,54 @@ function StatusStrip({ status }: { status: Status }) {
     title?: string;
   }> = [
     {
-      label: "HTTPS",
+      label: t("HTTPS"),
       value: status.caddyTls === null
         ? "…"
         : status.caddyTls
-          ? status.caddyDomain || "TLS"
-          : "HTTP",
+          ? status.caddyDomain || t("TLS")
+          : t("HTTP"),
       tone: status.caddyTls === null ? "info" : status.caddyTls ? "ok" : "warn",
       icon: <Lock size={11} />,
       href: "/editor/settings#hosting",
       title: status.caddyTls
-        ? `Caddy: TLS aktiv für ${status.caddyDomain || ""}`
-        : "Caddy läuft als HTTP-Proxy — keine TLS-Domain konfiguriert",
+        ? `${t("Caddy: TLS aktiv für")} ${status.caddyDomain || ""}`
+        : t("Caddy läuft als HTTP-Proxy — keine TLS-Domain konfiguriert"),
     },
     {
-      label: "DDNS",
+      label: t("DDNS"),
       value: status.ddnsIp || "—",
       tone: status.ddnsIp ? "ok" : "off",
       icon: <Globe2 size={11} />,
       href: "/editor/settings#hosting",
       title: status.ddnsLastUpdate
-        ? `Letzter Check: ${new Date(status.ddnsLastUpdate).toLocaleString()}`
-        : "DDNS nicht konfiguriert",
+        ? `${t("Letzter Check")}: ${new Date(status.ddnsLastUpdate).toLocaleString()}`
+        : t("DDNS nicht konfiguriert"),
     },
     {
-      label: "Home Assistant",
-      value: status.haConnected ? "verbunden" : "aus",
+      label: t("Home Assistant"),
+      value: status.haConnected ? t("verbunden") : t("aus"),
       tone: status.haConnected ? "ok" : "off",
       icon: <HomeIcon size={11} />,
       href: "/editor/integrations",
     },
     {
-      label: "Todoist",
+      label: t("Todoist"),
       value: status.todoistConnected
-        ? `${status.todoistProjects} Projekte`
-        : "aus",
+        ? `${status.todoistProjects} ${t("Projekte")}`
+        : t("aus"),
       tone: status.todoistConnected ? "ok" : "off",
       icon: <ListChecks size={11} />,
       href: "/editor/integrations",
     },
     {
-      label: "Module",
-      value: status.customModules > 0 ? `${status.customModules} aktiv` : "—",
+      label: t("Module"),
+      value: status.customModules > 0 ? `${status.customModules} ${t("aktiv")}` : "—",
       tone: status.customModules > 0 ? "info" : "off",
       icon: <Package size={11} />,
       href: "/editor/modules",
     },
     {
-      label: "Backups",
+      label: t("Backups"),
       value: status.snapshots !== null ? String(status.snapshots) : "…",
       tone: status.snapshots !== null && status.snapshots > 0 ? "info" : "off",
       icon: <Archive size={11} />,
@@ -505,18 +506,18 @@ function StatusStrip({ status }: { status: Status }) {
     ...(status.activeLockouts > 0
       ? [
           {
-            label: "Lockouts",
+            label: t("Lockouts"),
             value: String(status.activeLockouts),
             tone: "warn" as const,
             icon: <AlertOctagon size={11} />,
             href: "/editor/settings#security",
-            title: `${status.activeLockouts} aktive Login-Sperren — bitte prüfen`,
+            title: `${status.activeLockouts} ${t("aktive Login-Sperren — bitte prüfen")}`,
           },
         ]
       : [
           {
-            label: "Sicherheit",
-            value: "OK",
+            label: t("Sicherheit"),
+            value: t("OK"),
             tone: "ok" as const,
             icon: <ShieldCheck size={11} />,
             href: "/editor/settings#security",

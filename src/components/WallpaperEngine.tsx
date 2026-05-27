@@ -31,7 +31,7 @@ export default function WallpaperEngine({
   config?: any;
   dashboardId?: string;
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const [images, setImages] = useState<WallpaperData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isReady, setIsReady] = useState(false);
@@ -78,7 +78,7 @@ export default function WallpaperEngine({
       const generated = Array.from({ length: 20 }).map((_, i) => ({
         id: `unsplash-${i}-${Date.now()}`,
         url: `https://image.pollinations.ai/prompt/${encodeURIComponent(query + ' cinematic 4k high resolution realistic photography')}?width=3840&height=2160&seed=${i + Math.floor(Math.random() * 9999999)}&nologo=true`,
-        metadata: config?.showMetadata ? { locationName: `Topic: ${query}` } : undefined
+        metadata: config?.showMetadata ? { locationName: `${t("Thema")}: ${query}` } : undefined
       }));
       setImages(generated);
       setIsReady(true);
@@ -202,7 +202,7 @@ export default function WallpaperEngine({
                    >
                       {config?.metaShowDate !== false && currentImage.metadata.dateTaken && <span>{currentImage.metadata.dateTaken}</span>}
                       {config?.metaShowLocation !== false && currentImage.metadata.locationName && <span>{currentImage.metadata.locationName}</span>}
-                      {config?.metaShowCamera !== false && currentImage.metadata.cameraModel && <span>Shot on {currentImage.metadata.cameraModel}</span>}
+                      {config?.metaShowCamera !== false && currentImage.metadata.cameraModel && <span>{`${t("Aufgenommen mit")} ${currentImage.metadata.cameraModel}`}</span>}
                    </div>
                  )}
               </div>
