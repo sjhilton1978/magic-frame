@@ -15,7 +15,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
      const dashboardId = req.nextUrl.searchParams.get('dashboardId') || "1";
-     const dateLocale = req.nextUrl.searchParams.get('lang') === 'en' ? 'en-GB' : 'de-DE';
+     // en-US matches Clock + Calendar + Weather + Immich playlist —
+     // "May 27, 2026" for English, "27. Mai 2026" for German.
+     const dateLocale = req.nextUrl.searchParams.get('lang') === 'en' ? 'en-US' : 'de-DE';
      const dashboard = await prisma.dashboard.findUnique({ where: { id: dashboardId } });
      if (!dashboard || !dashboard.wallpaper) return new NextResponse("Not Found", { status: 404 });
      const wp = dashboard.wallpaper as any;

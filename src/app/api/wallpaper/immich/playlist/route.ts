@@ -13,7 +13,11 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
      const dashboardId = req.nextUrl.searchParams.get('dashboardId') || "1";
-     const dateLocale = req.nextUrl.searchParams.get('lang') === 'en' ? 'en-GB' : 'de-DE';
+     // en-US matches the Clock + Calendar + Weather widgets — gives
+     // "May 27, 2026" for English and "27. Mai 2026" for German, so the
+     // photo metadata under the wallpaper reads the same as the rest of
+     // the dashboard.
+     const dateLocale = req.nextUrl.searchParams.get('lang') === 'en' ? 'en-US' : 'de-DE';
      const dashboard = await prisma.dashboard.findUnique({ where: { id: dashboardId } });
      if (!dashboard || !dashboard.wallpaper) return new NextResponse("Not Found", { status: 404 });
      const wp = dashboard.wallpaper as any;

@@ -147,7 +147,12 @@ export default function CalendarWidget({ config, onVisibilityChange }: { config?
           else weekdayLabel = format(startDate, "eee", { locale: dfLocale });
           const dateLabel = format(startDate, "d");
           const hideWeekday = (config as any)?.hideWeekday === true;
-          const timeStr = ev.isAllDay ? t("Ganztägig") : format(startDate, "HH:mm");
+          // 24-hour for German, 12-hour with AM/PM for English — matches
+          // the Clock + Weather widgets, so the whole dashboard reads
+          // consistently regardless of locale.
+          const timeStr = ev.isAllDay
+            ? t("Ganztägig")
+            : format(startDate, locale === "en" ? "h:mm a" : "HH:mm");
           const cardOpacity = config?.cardOpacity !== undefined ? config.cardOpacity : 40;
           const hasBg = cardOpacity > 0;
           const isMinimal = config?.design === 'minimal';

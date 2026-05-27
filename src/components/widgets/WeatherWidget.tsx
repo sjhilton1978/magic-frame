@@ -23,7 +23,10 @@ function StatIcon({ k, sizeEm = 1 }: { k: StatIconKey; iconSet?: string; sizeEm?
 
 export default function WeatherWidget({ config, location, lat, lon }: { config?: any, location?: string, lat?: string, lon?: string }) {
   const { locale, t } = useLocale();
-  const dateLocale = locale === "en" ? "en-GB" : "de-DE";
+  // en-US → 12-hour clock with AM/PM (sunrise/sunset), US weekday format
+  // ("Tue"). de-DE → 24-hour, German weekday ("Di."). Matches what
+  // ClockWidget does so the whole dashboard reads consistently.
+  const dateLocale = locale === "en" ? "en-US" : "de-DE";
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
