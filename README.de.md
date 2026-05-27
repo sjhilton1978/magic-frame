@@ -124,11 +124,11 @@ Echte Setups auf unterschiedlicher Hardware. Gleiches Projekt, andere Layouts, a
 
 <table>
 <tr>
-<td width="50%"><img src="public/setups/setup-monitor.jpg" alt="Wandmontierter Portrait-Monitor mit Uhr, zwei anstehenden Kalender-Terminen und 4-Tage-Wettervorhersage vor Berg-Wallpaper" /></td>
+<td width="50%"><img src="public/setups/setup-monitor.jpg" alt="Wandmontierter Portrait-Monitor mit Uhr, zwei anstehenden Kalender-Terminen, drei Live-Notifications und 4-Tage-Wettervorhersage vor Berg-Wallpaper" /></td>
 <td width="50%"><img src="public/setups/setup-notify.jpg" alt="Notification-Tiles am Wand-Monitor in der Nacht — Close-up" /></td>
 </tr>
 <tr>
-<td valign="top"><sub><strong>Info-Layout:</strong> Uhr, zwei anstehende Kalender-Termine, aktuelle Temperatur und 4-Tage-Wettervorhersage über einem rotierenden Immich-Wallpaper. Ruhig und gut auf einen Blick lesbar — ideal für Flur, Büro oder Schlafzimmer-Wand.</sub></td>
+<td valign="top"><sub><strong>Info-Layout:</strong> Uhr, zwei anstehende Kalender-Termine, drei Live-HA-Notifications, aktuelle Temperatur und 4-Tage-Wettervorhersage über einem rotierenden Immich-Wallpaper. Ruhig und gut auf einen Blick lesbar — ideal für Flur, Büro oder Schlafzimmer-Wand.</sub></td>
 <td valign="top"><sub><strong>Notifications im Detail:</strong> regelbasierte Tiles die automatisch erscheinen wenn was passiert (Waschmaschine fertig, „Milou füttern", Trockner fertig) und sich wieder verstecken sobald's quittiert wurde. Das Wallpaper läuft drunter weiter.</sub></td>
 </tr>
 </table>

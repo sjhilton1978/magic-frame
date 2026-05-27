@@ -124,11 +124,11 @@ Real-world setups across different hardware. Same project, different layouts, di
 
 <table>
 <tr>
-<td width="50%"><img src="public/setups/setup-monitor.jpg" alt="Wall-mounted portrait monitor with clock, two upcoming calendar entries and a 4-day weather forecast over a mountain wallpaper" /></td>
+<td width="50%"><img src="public/setups/setup-monitor.jpg" alt="Wall-mounted portrait monitor showing the time, two upcoming calendar entries, three live notifications and a 4-day weather forecast over a mountain wallpaper" /></td>
 <td width="50%"><img src="public/setups/setup-notify.jpg" alt="Close-up of notification tiles on the wall monitor at night" /></td>
 </tr>
 <tr>
-<td valign="top"><sub><strong>Info layout:</strong> clock, two upcoming calendar events, current temperature and 4-day weather forecast over a rotating Immich wallpaper. Quiet and glanceable for a hallway, office or bedroom wall.</sub></td>
+<td valign="top"><sub><strong>Info layout:</strong> clock, two upcoming calendar events, three live HA notifications, current temperature and 4-day weather forecast over a rotating Immich wallpaper. Quiet and glanceable for a hallway, office or bedroom wall.</sub></td>
 <td valign="top"><sub><strong>Notifications close-up:</strong> rule-based tiles that auto-show when something happens (washing machine done, "feed Milou", dryer done) and auto-hide once acknowledged. Wallpaper keeps running underneath.</sub></td>
 </tr>
 </table>
