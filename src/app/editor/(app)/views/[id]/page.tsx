@@ -444,14 +444,20 @@ export default function ViewEditor({
 
   const addWidget = (type: string) => {
     const newId = Math.random().toString(36).substring(7);
+    // Default labels are stored as the German source string. Rendering goes
+    // through t() so each display localises to the active app locale — that
+    // way a widget created in the German UI still shows "Clock" when the
+    // viewer switches to English, instead of being stuck as "Uhr". User-set
+    // custom labels stay as the user typed them (t() falls back to source
+    // when no translation exists).
     let label = type.replace("Widget.tsx", "");
-    if (type === "ClockWidget.tsx") label = t("Uhr");
-    if (type === "WeatherWidget.tsx") label = t("Wetter");
-    if (type === "HomeAssistantWidget.tsx") label = t("HA Entity");
-    if (type === "TimerWidget.tsx") label = t("Timer");
-    if (type === "MessagesWidget.tsx") label = t("Nachrichten");
-    if (type === "ShoppingListWidget.tsx") label = t("Einkaufsliste");
-    if (type === "TodosWidget.tsx") label = t("Todos");
+    if (type === "ClockWidget.tsx") label = "Uhr";
+    if (type === "WeatherWidget.tsx") label = "Wetter";
+    if (type === "HomeAssistantWidget.tsx") label = "HA Entity";
+    if (type === "TimerWidget.tsx") label = "Timer";
+    if (type === "MessagesWidget.tsx") label = "Nachrichten";
+    if (type === "ShoppingListWidget.tsx") label = "Einkaufsliste";
+    if (type === "TodosWidget.tsx") label = "Todos";
     // Custom-Modul: label aus dem Manifest, Felder mit Defaults vorbelegen.
     const initialConfig: any = { fontSize: 20, fontFamily: "var(--font-geist-sans)" };
     if (type.startsWith("custom:")) {
@@ -903,7 +909,7 @@ export default function ViewEditor({
                             {widgetIconFor(w.type, 14)}
                           </span>
                           <span className="text-xs font-semibold tracking-wide font-sans text-white/95 truncate flex-1">
-                            {w.label}
+                            {t(w.label)}
                           </span>
                           <button
                             type="button"

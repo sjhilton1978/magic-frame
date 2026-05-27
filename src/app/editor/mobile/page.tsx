@@ -203,10 +203,11 @@ function MobileEditorInner() {
 
   const addWidget = (type: string) => {
     const newId = Math.random().toString(36).substring(7);
+    // Store the German source — see the desktop editor for the rationale.
     let label = type.replace("Widget.tsx", "");
-    if (type === "ClockWidget.tsx") label = t("Uhr");
-    if (type === "WeatherWidget.tsx") label = t("Wetter");
-    if (type === "HomeAssistantWidget.tsx") label = t("HA Entity");
+    if (type === "ClockWidget.tsx") label = "Uhr";
+    if (type === "WeatherWidget.tsx") label = "Wetter";
+    if (type === "HomeAssistantWidget.tsx") label = "HA Entity";
 
     const newWidget: WidgetLayoutItem = {
       i: newId,
@@ -444,7 +445,7 @@ function MobileEditorInner() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-white truncate">
-                    {w.label}
+                    {t(w.label)}
                   </div>
                   <div className="text-xs text-white/50 truncate">
                     {w.type.replace("Widget.tsx", "")} · {w.w}×{w.h} · Pos {w.x},
