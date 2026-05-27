@@ -95,6 +95,12 @@ function CustomModulesSection() {
   const [showRaw, setShowRaw] = useState<string | null>(null);
   const manifestInputRef = useRef<HTMLInputElement>(null);
   const bundleInputRef = useRef<HTMLInputElement>(null);
+  // Native <input type="file"> renders its button + status text in the
+  // browser's locale, which we can't override. We hide the inputs and
+  // mirror the picked filenames in this state so the visible UI follows
+  // the App locale instead.
+  const [manifestName, setManifestName] = useState<string>("");
+  const [bundleName, setBundleName] = useState<string>("");
 
   async function load() {
     setLoading(true);
@@ -152,6 +158,8 @@ function CustomModulesSection() {
       );
       if (manifestInputRef.current) manifestInputRef.current.value = "";
       if (bundleInputRef.current) bundleInputRef.current.value = "";
+      setManifestName("");
+      setBundleName("");
       load();
     } catch (e: any) {
       flash("err", e.message);
@@ -218,21 +226,47 @@ function CustomModulesSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <div>
             <label className="block text-[11px] text-white/50 mb-1">module.json (Manifest)</label>
-            <input
-              ref={manifestInputRef}
-              type="file"
-              accept="application/json,.json"
-              className="block w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-white/10 file:text-white/80 file:text-xs hover:file:bg-white/15"
-            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => manifestInputRef.current?.click()}
+                className="shrink-0 bg-white/10 hover:bg-white/15 text-white/80 text-xs rounded-md py-1.5 px-3"
+              >
+                {t("Datei wählen")}
+              </button>
+              <span className="text-xs text-white/50 truncate flex-1 min-w-0">
+                {manifestName || t("Keine Datei ausgewählt")}
+              </span>
+              <input
+                ref={manifestInputRef}
+                type="file"
+                accept="application/json,.json"
+                onChange={(e) => setManifestName(e.target.files?.[0]?.name ?? "")}
+                className="sr-only"
+              />
+            </div>
           </div>
           <div>
             <label className="block text-[11px] text-white/50 mb-1">bundle.js</label>
-            <input
-              ref={bundleInputRef}
-              type="file"
-              accept="text/javascript,application/javascript,.js"
-              className="block w-full text-xs text-white/70 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:bg-white/10 file:text-white/80 file:text-xs hover:file:bg-white/15"
-            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => bundleInputRef.current?.click()}
+                className="shrink-0 bg-white/10 hover:bg-white/15 text-white/80 text-xs rounded-md py-1.5 px-3"
+              >
+                {t("Datei wählen")}
+              </button>
+              <span className="text-xs text-white/50 truncate flex-1 min-w-0">
+                {bundleName || t("Keine Datei ausgewählt")}
+              </span>
+              <input
+                ref={bundleInputRef}
+                type="file"
+                accept="text/javascript,application/javascript,.js"
+                onChange={(e) => setBundleName(e.target.files?.[0]?.name ?? "")}
+                className="sr-only"
+              />
+            </div>
           </div>
         </div>
         <button

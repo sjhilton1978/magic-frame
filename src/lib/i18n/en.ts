@@ -1348,4 +1348,7 @@ export const EN: Record<string, string> = {
   // URL-slug placeholder paired with "z.B. Küche" — keep the language
   // consistent so "Kitchen / kitchen" reads naturally in EN mode.
   "kueche": "kitchen",
+  // Custom file-picker label (replaces the browser's native locale-dependent
+  // "Keine ausgewählt" / "No file chosen" status text)
+  "Keine Datei ausgewählt": "No file chosen",
 };
