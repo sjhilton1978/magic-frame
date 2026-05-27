@@ -42,22 +42,55 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     await verifySession();
-    const { id, name, oldId, orientation } = await req.json();
+    const { id, name, oldId, sourceId, orientation } = await req.json();
     const orient = orientation === "landscape" ? "landscape" : "portrait";
-    
+
     if (!id || !name) {
        return NextResponse.json({ error: "Missing id or name" }, { status: 400 });
     }
 
     // Clean up ID (lowercase, alphanumeric, dashes)
     const safeId = id.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-    
+
     if (!safeId) return NextResponse.json({ error: "Invalid path ID" }, { status: 400 });
 
-    if (oldId && oldId !== safeId) {
-       // We are renaming the ID (URL slug). 
-       // Prisma doesn't natively CASCADE UPDATE primary keys if it's not setup in schema easily,
-       // so the safest way is to copy the dashboard, its widgets, and delete the old.
+    if (sourceId && sourceId !== safeId) {
+       // DUPLICATE: copy the dashboard + its widgets under a new ID, leave the
+       // source untouched. Widget IDs get a unique suffix per target so the
+       // copies never collide with the originals.
+       const source = await prisma.dashboard.findUnique({
+          where: { id: sourceId },
+          include: { widgets: true }
+       });
+       if (!source) return NextResponse.json({ error: "Source dashboard not found" }, { status: 404 });
+
+       await prisma.dashboard.create({
+          data: {
+             id: safeId,
+             name,
+             wallpaper: source.wallpaper || {},
+             settings: source.settings || { orientation: orient }
+          }
+       });
+
+       const widgetSuffix = `_${safeId}`;
+       for (const w of source.widgets) {
+          await prisma.widget.create({
+             data: {
+                id: w.id + widgetSuffix, // unique per target dashboard
+                type: w.type,
+                x: w.x, y: w.y, w: w.w, h: w.h,
+                bgOpacity: w.bgOpacity,
+                config: w.config || {},
+                dashboardId: safeId
+             }
+          });
+       }
+
+    } else if (oldId && oldId !== safeId) {
+       // RENAME: change the URL slug. Prisma doesn't easily CASCADE UPDATE
+       // primary keys, so we copy → delete the old. Widget IDs get a suffix
+       // to avoid clashing with anything else in the table.
        const oldDashboard = await prisma.dashboard.findUnique({
           where: { id: oldId },
           include: { widgets: true }
@@ -92,7 +125,7 @@ export async function POST(req: NextRequest) {
        await prisma.dashboard.delete({ where: { id: oldId } });
 
     } else {
-       // Just creating or updating name of existing dashboard
+       // CREATE or UPDATE-IN-PLACE: same ID — just upsert the name.
        await prisma.dashboard.upsert({
           where: { id: safeId },
           update: { name }, // bestehender View: nur Name, Wallpaper bleibt unangetastet

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, ExternalLink, Trash2, ArrowRight, Monitor, Smartphone, Clock as ClockIcon, CloudSun, Calendar as CalendarIcon, Zap, Bell, Power, Timer as TimerIcon, MessageSquare, ShoppingCart, ClipboardList } from "lucide-react";
+import { Plus, ExternalLink, Trash2, ArrowRight, Monitor, Smartphone, Pencil, Copy, Clock as ClockIcon, CloudSun, Calendar as CalendarIcon, Zap, Bell, Power, Timer as TimerIcon, MessageSquare, ShoppingCart, ClipboardList } from "lucide-react";
 import { useT } from "@/lib/i18n/LocaleProvider";
 
 type Orientation = "portrait" | "landscape";
@@ -71,14 +71,21 @@ function LayoutPreview({ layout, orientation }: { layout?: LayoutItem[]; orienta
   );
 }
 
+// Modal supports three modes from one form. "edit" and "duplicate" carry
+// the source dashboard so the form can pre-fill the fields.
+type ModalMode =
+  | { kind: "new" }
+  | { kind: "edit"; source: Dashboard }
+  | { kind: "duplicate"; source: Dashboard };
+
 export default function ViewsListPage() {
   const t = useT();
   const router = useRouter();
   const [dashboards, setDashboards] = useState<Dashboard[] | null>(null);
-  const [showNew, setShowNew] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newSlug, setNewSlug] = useState("");
-  const [newOrientation, setNewOrientation] = useState<Orientation>("portrait");
+  const [modal, setModal] = useState<ModalMode | null>(null);
+  const [formName, setFormName] = useState("");
+  const [formSlug, setFormSlug] = useState("");
+  const [formOrientation, setFormOrientation] = useState<Orientation>("portrait");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -93,29 +100,70 @@ export default function ViewsListPage() {
     load();
   }, []);
 
-  async function createView(e: React.FormEvent) {
+  function openNewModal() {
+    setError(null);
+    setFormName("");
+    setFormSlug("");
+    setFormOrientation("portrait");
+    setModal({ kind: "new" });
+  }
+
+  function openEditModal(d: Dashboard) {
+    setError(null);
+    setFormName(d.name);
+    setFormSlug(d.id);
+    setFormOrientation(d.orientation ?? "portrait");
+    setModal({ kind: "edit", source: d });
+  }
+
+  function openDuplicateModal(d: Dashboard) {
+    setError(null);
+    setFormName(`${d.name} (${t("Kopie")})`);
+    setFormSlug(`${d.id}-copy`);
+    setFormOrientation(d.orientation ?? "portrait");
+    setModal({ kind: "duplicate", source: d });
+  }
+
+  function closeModal() {
+    setModal(null);
+  }
+
+  async function submitView(e: React.FormEvent) {
     e.preventDefault();
+    if (!modal) return;
     setError(null);
     setBusy(true);
     try {
+      // For "edit": send oldId so the API renames (or just updates name if
+      // slug unchanged). For "duplicate": send sourceId so the API copies
+      // widgets into a new dashboard without deleting the source.
+      const body: Record<string, unknown> = {
+        id: formSlug,
+        name: formName,
+        orientation: formOrientation,
+      };
+      if (modal.kind === "edit") body.oldId = modal.source.id;
+      if (modal.kind === "duplicate") body.sourceId = modal.source.id;
+
       const res = await fetch("/api/dashboards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: newSlug, name: newName, orientation: newOrientation }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Konnte nicht angelegt werden.");
+        setError(data.error || t("Konnte nicht angelegt werden."));
         return;
       }
-      setShowNew(false);
-      setNewName("");
-      setNewSlug("");
-      setNewOrientation("portrait");
+      closeModal();
       load();
-      router.push(`/editor/views/${encodeURIComponent(data.id)}`);
+      // After "new" or "duplicate": jump straight into the editor. After
+      // "edit": stay on the list so the user sees the renamed card.
+      if (modal.kind !== "edit") {
+        router.push(`/editor/views/${encodeURIComponent(data.id)}`);
+      }
     } catch {
-      setError("Netzwerkfehler.");
+      setError(t("Netzwerkfehler."));
     } finally {
       setBusy(false);
     }
@@ -124,7 +172,7 @@ export default function ViewsListPage() {
   async function deleteView(id: string, name: string) {
     if (
       !confirm(
-        `View "${name}" wirklich löschen? Alle Widgets dieses Views gehen verloren.`,
+        t("View „{name}“ wirklich löschen? Alle Widgets dieses Views gehen verloren.").replace("{name}", name),
       )
     )
       return;
@@ -150,7 +198,7 @@ export default function ViewsListPage() {
             </p>
           </div>
           <button
-            onClick={() => setShowNew(true)}
+            onClick={openNewModal}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-full text-sm font-medium shadow-sm shadow-blue-500/30"
           >
             <Plus size={14} /> {t("Neuer View")}
@@ -163,7 +211,7 @@ export default function ViewsListPage() {
           <div className="bg-zinc-900/60 border border-white/10 rounded-2xl p-12 text-center">
             <p className="text-white/60 mb-4">{t("Noch keine Views angelegt.")}</p>
             <button
-              onClick={() => setShowNew(true)}
+              onClick={openNewModal}
               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-full text-sm font-medium"
             >
               <Plus size={14} /> {t("Ersten View anlegen")}
@@ -211,6 +259,20 @@ export default function ViewsListPage() {
                     <ExternalLink size={11} /> {t("Live öffnen")}
                   </a>
                   <button
+                    onClick={() => openEditModal(d)}
+                    title={t("Bearbeiten")}
+                    className="text-[11px] text-white/50 hover:text-white flex items-center gap-1"
+                  >
+                    <Pencil size={11} /> {t("Bearbeiten")}
+                  </button>
+                  <button
+                    onClick={() => openDuplicateModal(d)}
+                    title={t("Duplizieren")}
+                    className="text-[11px] text-white/50 hover:text-white flex items-center gap-1"
+                  >
+                    <Copy size={11} /> {t("Duplizieren")}
+                  </button>
+                  <button
                     onClick={() => deleteView(d.id, d.name)}
                     disabled={dashboards.length <= 1}
                     title={
@@ -230,20 +292,40 @@ export default function ViewsListPage() {
         )}
       </div>
 
-      {showNew && (
+      {modal && (() => {
+        const isEdit = modal.kind === "edit";
+        const isDuplicate = modal.kind === "duplicate";
+        const title = isEdit
+          ? t("View bearbeiten")
+          : isDuplicate
+            ? t("View duplizieren")
+            : t("Neuer View");
+        const subtitle = isEdit
+          ? t("Anzeigename oder URL-Pfad ändern. Layout + Widgets bleiben erhalten.")
+          : isDuplicate
+            ? t("Kopiert Layout + Widgets in einen neuen View. Original bleibt unverändert.")
+            : t("Nach dem Anlegen wirst du direkt in den Editor geschickt.");
+        const submitText = busy
+          ? isEdit
+            ? t("Speichere…")
+            : t("Wird angelegt…")
+          : isEdit
+            ? t("Speichern")
+            : isDuplicate
+              ? t("Duplikat anlegen & öffnen")
+              : t("Anlegen & öffnen");
+        return (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setShowNew(false)}
+          onClick={closeModal}
         >
           <form
-            onSubmit={createView}
+            onSubmit={submitView}
             onClick={(e) => e.stopPropagation()}
             className="bg-zinc-900 border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl"
           >
-            <h2 className="text-lg font-semibold mb-1">{t("Neuer View")}</h2>
-            <p className="text-sm text-white/50 mb-6">
-              {t("Nach dem Anlegen wirst du direkt in den Editor geschickt.")}
-            </p>
+            <h2 className="text-lg font-semibold mb-1">{title}</h2>
+            <p className="text-sm text-white/50 mb-6">{subtitle}</p>
 
             <label className="block mb-4">
               <span className="text-xs font-medium text-white/70 block mb-2">
@@ -252,63 +334,68 @@ export default function ViewsListPage() {
               <input
                 type="text"
                 required
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
                 placeholder={t("z.B. Küche")}
                 className="w-full bg-black border border-white/10 text-white rounded-lg p-3 outline-none focus:border-blue-500"
               />
             </label>
-            <div className="mb-6">
-               <span className="text-xs font-medium text-white/70 block mb-2">
-                  {t("Ausrichtung")}
-               </span>
-               <div className="grid grid-cols-2 gap-2">
-                  <button
-                     type="button"
-                     onClick={() => setNewOrientation("portrait")}
-                     className={`flex items-center justify-center gap-2 border rounded-lg p-3 transition-colors ${
-                        newOrientation === "portrait"
-                           ? "bg-blue-500/10 border-blue-500/50 text-white"
-                           : "bg-black/40 border-white/10 text-white/60 hover:border-white/30"
-                     }`}
-                  >
-                     <div className={`w-6 h-8 rounded border flex items-center justify-center ${newOrientation === "portrait" ? "border-blue-300" : "border-white/20"}`}>
-                        <Smartphone size={10} />
-                     </div>
-                     <span className="text-sm font-medium">{t("Hochformat")}</span>
-                  </button>
-                  <button
-                     type="button"
-                     onClick={() => setNewOrientation("landscape")}
-                     className={`flex items-center justify-center gap-2 border rounded-lg p-3 transition-colors ${
-                        newOrientation === "landscape"
-                           ? "bg-blue-500/10 border-blue-500/50 text-white"
-                           : "bg-black/40 border-white/10 text-white/60 hover:border-white/30"
-                     }`}
-                  >
-                     <div className={`w-10 h-6 rounded border flex items-center justify-center ${newOrientation === "landscape" ? "border-blue-300" : "border-white/20"}`}>
-                        <Monitor size={12} />
-                     </div>
-                     <span className="text-sm font-medium">{t("Querformat")}</span>
-                  </button>
-               </div>
-               <p className="text-[11px] text-white/40 mt-2">
-                  {t("Beeinflusst das Canvas-Seitenverhältnis im Editor. Kannst du später jederzeit umstellen.")}
-               </p>
-            </div>
+            {/* Orientation only makes sense when creating from scratch or
+                duplicating. For edit we hide it — the user can change it
+                inside the editor's view settings any time. */}
+            {!isEdit && (
+              <div className="mb-6">
+                 <span className="text-xs font-medium text-white/70 block mb-2">
+                    {t("Ausrichtung")}
+                 </span>
+                 <div className="grid grid-cols-2 gap-2">
+                    <button
+                       type="button"
+                       onClick={() => setFormOrientation("portrait")}
+                       className={`flex items-center justify-center gap-2 border rounded-lg p-3 transition-colors ${
+                          formOrientation === "portrait"
+                             ? "bg-blue-500/10 border-blue-500/50 text-white"
+                             : "bg-black/40 border-white/10 text-white/60 hover:border-white/30"
+                       }`}
+                    >
+                       <div className={`w-6 h-8 rounded border flex items-center justify-center ${formOrientation === "portrait" ? "border-blue-300" : "border-white/20"}`}>
+                          <Smartphone size={10} />
+                       </div>
+                       <span className="text-sm font-medium">{t("Hochformat")}</span>
+                    </button>
+                    <button
+                       type="button"
+                       onClick={() => setFormOrientation("landscape")}
+                       className={`flex items-center justify-center gap-2 border rounded-lg p-3 transition-colors ${
+                          formOrientation === "landscape"
+                             ? "bg-blue-500/10 border-blue-500/50 text-white"
+                             : "bg-black/40 border-white/10 text-white/60 hover:border-white/30"
+                       }`}
+                    >
+                       <div className={`w-10 h-6 rounded border flex items-center justify-center ${formOrientation === "landscape" ? "border-blue-300" : "border-white/20"}`}>
+                          <Monitor size={12} />
+                       </div>
+                       <span className="text-sm font-medium">{t("Querformat")}</span>
+                    </button>
+                 </div>
+                 <p className="text-[11px] text-white/40 mt-2">
+                    {t("Beeinflusst das Canvas-Seitenverhältnis im Editor. Kannst du später jederzeit umstellen.")}
+                 </p>
+              </div>
+            )}
 
             <label className="block mb-6">
               <span className="text-xs font-medium text-white/70 block mb-2">
-                URL-Pfad
+                {t("URL-Pfad")}
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-white/40 font-mono text-sm">/view/</span>
                 <input
                   type="text"
                   required
-                  value={newSlug}
+                  value={formSlug}
                   onChange={(e) =>
-                    setNewSlug(
+                    setFormSlug(
                       e.target.value
                         .toLowerCase()
                         .replace(/[^a-z0-9-]/g, "-"),
@@ -319,35 +406,38 @@ export default function ViewsListPage() {
                 />
               </div>
               <p className="text-[11px] text-white/40 mt-1">
-                Keine Leerzeichen. Wird die URL auf dem Display.
+                {isEdit
+                  ? t("Ändert die URL auf dem Display. Bestehende Tablets müssen ggf. neu konfiguriert werden.")
+                  : t("Keine Leerzeichen. Wird die URL auf dem Display.")}
               </p>
             </label>
 
             {error && (
               <div className="mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                {error}
+                {t(error)}
               </div>
             )}
 
             <div className="flex gap-2 justify-end">
               <button
                 type="button"
-                onClick={() => setShowNew(false)}
+                onClick={closeModal}
                 className="px-4 py-2 rounded-full text-sm text-white/70 hover:text-white hover:bg-white/5"
               >
-                Abbrechen
+                {t("Abbrechen")}
               </button>
               <button
                 type="submit"
                 disabled={busy}
                 className="px-4 py-2 rounded-full text-sm bg-blue-600 hover:bg-blue-500 font-medium disabled:opacity-50"
               >
-                {busy ? "Wird angelegt…" : "Anlegen & öffnen"}
+                {submitText}
               </button>
             </div>
           </form>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
