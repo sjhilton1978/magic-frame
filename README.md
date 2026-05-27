@@ -129,22 +129,15 @@ Real-world setups across different hardware. Same project, different layouts, di
 </tr>
 <tr>
 <td valign="top"><sub><strong>Info layout:</strong> clock, two upcoming calendar events, current temperature and 4-day weather forecast over a rotating Immich wallpaper. Quiet and glanceable for a hallway, office or bedroom wall.</sub></td>
-<td valign="top"><sub><strong>Notifications close-up:</strong> rule-based tiles that auto-show when something happens (washing machine done, "feed Milou") and auto-hide once acknowledged. Wallpaper keeps running underneath.</sub></td>
+<td valign="top"><sub><strong>Notifications close-up:</strong> rule-based tiles that auto-show when something happens (washing machine done, "feed Milou", dryer done) and auto-hide once acknowledged. Wallpaper keeps running underneath.</sub></td>
 </tr>
 </table>
 
 ### Picture-frame tablet on a side table
 
-<table>
-<tr>
-<td width="50%"><img src="public/setups/setup-tablet.jpg" alt="Small picture-frame tablet on a side table with HA scene buttons, a clock and the current weather" /></td>
-<td width="50%"><img src="public/setups/setup-ha-entitaet.jpg" alt="The same picture frame with HA buttons and entity tiles toggled visible" /></td>
-</tr>
-<tr>
-<td valign="top"><sub><strong>Scene-button layout:</strong> a small tablet in a real photo-frame mount on the side table. Quick-access HA buttons (lights, "only good vibes", air purifier, …), small clock, current temperature, rotating wallpaper underneath.</sub></td>
-<td valign="top"><sub><strong>HA dashboard mode (same device):</strong> alternate layout on the same hardware — HA scene buttons (lowboard, "only good vibes", access point, red) and entity tiles (living-room door, air purifier). Tap the toggle to swap back to the frame layout.</sub></td>
-</tr>
-</table>
+<p align="center"><img src="public/setups/setup-tablet.jpg" alt="Small picture-frame tablet on a side table with HA scene buttons, a clock and the current weather" width="50%" /></p>
+
+<p align="center"><sub><strong>Scene-button layout:</strong> a small tablet in a real photo-frame mount on the side table. Quick-access HA buttons (lights, "only good vibes", air purifier, …), small clock, current temperature, rotating wallpaper underneath.</sub></p>
 
 ---
 

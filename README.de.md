@@ -129,22 +129,15 @@ Echte Setups auf unterschiedlicher Hardware. Gleiches Projekt, andere Layouts, a
 </tr>
 <tr>
 <td valign="top"><sub><strong>Info-Layout:</strong> Uhr, zwei anstehende Kalender-Termine, aktuelle Temperatur und 4-Tage-Wettervorhersage über einem rotierenden Immich-Wallpaper. Ruhig und gut auf einen Blick lesbar — ideal für Flur, Büro oder Schlafzimmer-Wand.</sub></td>
-<td valign="top"><sub><strong>Notifications im Detail:</strong> regelbasierte Tiles die automatisch erscheinen wenn was passiert (Waschmaschine fertig, „Milou füttern") und sich wieder verstecken sobald's quittiert wurde. Das Wallpaper läuft drunter weiter.</sub></td>
+<td valign="top"><sub><strong>Notifications im Detail:</strong> regelbasierte Tiles die automatisch erscheinen wenn was passiert (Waschmaschine fertig, „Milou füttern", Trockner fertig) und sich wieder verstecken sobald's quittiert wurde. Das Wallpaper läuft drunter weiter.</sub></td>
 </tr>
 </table>
 
 ### Bilderrahmen-Tablet auf dem Beistelltisch
 
-<table>
-<tr>
-<td width="50%"><img src="public/setups/setup-tablet.jpg" alt="Kleines Bilderrahmen-Tablet auf dem Beistelltisch mit HA-Szenen-Buttons, Uhr und aktuellem Wetter" /></td>
-<td width="50%"><img src="public/setups/setup-ha-entitaet.jpg" alt="Derselbe Bilderrahmen mit eingeblendeten HA-Buttons und Entity-Tiles" /></td>
-</tr>
-<tr>
-<td valign="top"><sub><strong>Szenen-Button-Layout:</strong> ein kleines Tablet in echter Bilderrahmen-Halterung auf dem Beistelltisch. Schnellzugriff-HA-Buttons (Lichter, „Only good Vibes", Luftreiniger, …), dezente Uhr, aktuelles Wetter, rotierendes Wallpaper drunter.</sub></td>
-<td valign="top"><sub><strong>HA-Dashboard-Modus (selbes Gerät):</strong> alternatives Layout auf derselben Hardware — HA-Szenen-Buttons (Lowboard, „Only good Vibes", Access Point, Red) und Entity-Tiles (Wohnzimmer-Tür, Luftreiniger). Toggle antippen → zurück ins Bilderrahmen-Layout.</sub></td>
-</tr>
-</table>
+<p align="center"><img src="public/setups/setup-tablet.jpg" alt="Kleines Bilderrahmen-Tablet auf dem Beistelltisch mit HA-Szenen-Buttons, Uhr und aktuellem Wetter" width="50%" /></p>
+
+<p align="center"><sub><strong>Szenen-Button-Layout:</strong> ein kleines Tablet in echter Bilderrahmen-Halterung auf dem Beistelltisch. Schnellzugriff-HA-Buttons (Lichter, „Only good Vibes", Luftreiniger, …), dezente Uhr, aktuelles Wetter, rotierendes Wallpaper drunter.</sub></p>
 
 ---
 
