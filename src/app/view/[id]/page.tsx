@@ -27,7 +27,22 @@ export default function DashboardView({ params }: { params: Promise<{ id: string
   const dashboardId = unwrappedParams.id;
   
   const [layout, setLayout] = useState<any[]>([]);
-  const [wallpaperConfig, setWallpaperConfig] = useState<any>(null);
+  // Use the last-known wallpaper config from localStorage as the initial state
+  // so a reload starts the right wallpaper source immediately, without the
+  // ~200 ms window where the Engine used to fall through to a generic
+  // Pollinations request. First-ever visit on a fresh browser is still
+  // briefly empty (no cache yet) — every reload after that is instant.
+  // Bytes-wise this stores only the config (source, query, interval, …),
+  // not the images themselves, so image quality + size stay untouched.
+  const [wallpaperConfig, setWallpaperConfig] = useState<any>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const cached = localStorage.getItem(`mf-wallpaper-${dashboardId}`);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [rowHeight, setRowHeight] = useState(40);
   const [userHiddenWidgets, setUserHiddenWidgets] = useState<Record<string, boolean>>({});
   const [autoHiddenWidgets, setAutoHiddenWidgets] = useState<Record<string, boolean>>({});
@@ -121,6 +136,17 @@ export default function DashboardView({ params }: { params: Promise<{ id: string
 
         if (data.wallpaper) {
            setWallpaperConfig((prev: any) => objectsEqual(prev, data.wallpaper) ? prev : data.wallpaper);
+           // Stash the config so the next reload starts on the right
+           // wallpaper source immediately. Only the config, not the image
+           // bytes — original resolution + source quality stay 1:1.
+           try {
+             localStorage.setItem(
+               `mf-wallpaper-${effectiveIdRef.current}`,
+               JSON.stringify(data.wallpaper),
+             );
+           } catch {
+             // Quota exceeded / private mode — just skip caching.
+           }
         }
       } else {
          // Fallback if empty database

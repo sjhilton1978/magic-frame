@@ -37,6 +37,19 @@ export default function WallpaperEngine({
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    // Wait for a real config from the parent. Live-View starts with
+    // wallpaperConfig=null and fetches the saved config async — during
+    // that ~200 ms window we used to fall through to the "unsplash"
+    // branch and render a fresh Pollinations request. On a reload that
+    // flashed a random / cached generic image before the actual wallpaper
+    // (Immich / WebDAV / bundled) took over. Black-on-mount is much
+    // calmer, and the real wallpaper still appears as soon as it lands.
+    if (!config) {
+      setIsReady(false);
+      setImages([]);
+      return;
+    }
+
     const source = config?.source || 'unsplash';
     const query = config?.query || 'nature,dark';
 
@@ -235,33 +248,75 @@ function KenBurnsSlot({ image, intervalMs }: { image: WallpaperData; intervalMs:
   );
 }
 
-// Zwei-Slot-Ping-Pong, ohne Framer-Motion. Zwei feste <img>-Elemente, die
-// nie unmounted werden — nur der aktive Slot wechselt. Billig auf Tizen.
+// Zwei-Slot-Ping-Pong, ohne Framer-Motion. Two fixed <img> elements that
+// never unmount — only the active slot changes. Cheap on Tizen / Smart-TV
+// browsers because nothing gets created or destroyed mid-transition; the
+// browser only animates opacity (or transform) between two stable layers.
+//
+// Both slots are mounted from the start so neither has a "first paint"
+// during a transition (which Tizen renders as a hard cut). slotB initially
+// shows the same image as slotA so the very first crossfade still has
+// something to fade from.
 function TwoSlotTransition({ image, mode }: { image: WallpaperData; mode: "crossfade" | "slide" }) {
   const [slotA, setSlotA] = useState<WallpaperData>(image);
-  const [slotB, setSlotB] = useState<WallpaperData | null>(null);
+  const [slotB, setSlotB] = useState<WallpaperData>(image);
   const [active, setActive] = useState<"A" | "B">("A");
   const prevIdRef = useRef<string>(image.id);
 
   useEffect(() => {
     if (image.id === prevIdRef.current) return;
     prevIdRef.current = image.id;
-    // Lade neues Bild in den INAKTIVEN Slot (der steht im Off-Screen-Startzustand),
-    // dann in 2 rAFs den aktiven Slot umschalten. Die 2 rAFs geben dem Browser
-    // Zeit, das neue <img> mit seinem Startzustand ins Layout zu stecken, bevor
-    // wir die Transition triggern.
-    if (active === "A") {
-      setSlotB(image);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setActive("B"));
-      });
-    } else {
-      setSlotA(image);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setActive("A"));
-      });
-    }
-  }, [image.id, active]);
+
+    // Wait until the new image is actually decoded before triggering the
+    // transition. Without this, slow-loading wallpapers (Pollinations
+    // generation, large Immich originals) caused the "sometimes smooth,
+    // sometimes hard cut" pattern: a cached image faded nicely, an
+    // uncached one snapped because the <img> still had no pixels when
+    // opacity hit 1. Solved by preloading via a detached Image() — the
+    // browser caches the decode, then the in-DOM <img> picks it up
+    // instantly from the cache and the transition runs on a ready frame.
+    const preloader = new Image();
+    let cancelled = false;
+
+    const swap = () => {
+      if (cancelled) return;
+      // Load into the inactive slot, two rAFs to give the browser one
+      // paint cycle with the start state before we trigger the transition.
+      if (active === "A") {
+        setSlotB(image);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (!cancelled) setActive("B");
+          });
+        });
+      } else {
+        setSlotA(image);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (!cancelled) setActive("A");
+          });
+        });
+      }
+    };
+
+    preloader.onload = swap;
+    // Network error or 404 — still swap so the playlist doesn't get stuck.
+    preloader.onerror = swap;
+    preloader.src = image.url;
+
+    // Hard safety net: if neither onload nor onerror fires within 4 s
+    // (some Smart-TV browsers go silent on huge images), force the swap
+    // anyway — better a hard cut than a frozen wallpaper.
+    const failsafe = setTimeout(swap, 4000);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(failsafe);
+      preloader.onload = null;
+      preloader.onerror = null;
+      preloader.src = "";
+    };
+  }, [image.id, active, image]);
 
   const slotStyle = (slotName: "A" | "B"): React.CSSProperties => {
     const isActive = slotName === active;
@@ -269,14 +324,27 @@ function TwoSlotTransition({ image, mode }: { image: WallpaperData; mode: "cross
       return {
         opacity: isActive ? 1 : 0,
         transition: "opacity 1500ms ease-in-out",
-        willChange: "opacity",
+        // Force GPU compositing on Tizen / older Chromium forks. Without
+        // an explicit transform the browser composites opacity on the CPU,
+        // which on a Samsung TV browser shows up as a hard jump instead of
+        // a smooth fade for large 4K wallpapers. translate3d(0,0,0) (a.k.a.
+        // the "translateZ hack") promotes each slot to its own GPU layer.
+        // Both prefixed and unprefixed for older webkit-derived browsers.
+        transform: "translate3d(0,0,0)",
+        WebkitTransform: "translate3d(0,0,0)",
+        backfaceVisibility: "hidden",
+        WebkitBackfaceVisibility: "hidden",
+        willChange: "opacity, transform",
       };
     }
     // slide: aktiv → 0, inaktiv → +100% (wartet rechts auf seinen Einsatz).
     // Während des Wechsels läuft es linear von +100% nach 0 bzw. 0 nach -100%.
     return {
       transform: isActive ? "translate3d(0,0,0)" : "translate3d(100%,0,0)",
+      WebkitTransform: isActive ? "translate3d(0,0,0)" : "translate3d(100%,0,0)",
       transition: "transform 1200ms cubic-bezier(0.77, 0, 0.175, 1)",
+      backfaceVisibility: "hidden",
+      WebkitBackfaceVisibility: "hidden",
       willChange: "transform",
     };
   };
@@ -290,15 +358,13 @@ function TwoSlotTransition({ image, mode }: { image: WallpaperData; mode: "cross
         style={slotStyle("A")}
         decoding="async"
       />
-      {slotB && (
-        <img
-          src={slotB.url}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={slotStyle("B")}
-          decoding="async"
-        />
-      )}
+      <img
+        src={slotB.url}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        style={slotStyle("B")}
+        decoding="async"
+      />
     </>
   );
 }
