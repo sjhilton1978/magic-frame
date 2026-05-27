@@ -3,6 +3,7 @@
 import React from 'react';
 import type { WidgetLayoutItem } from '../_types';
 import IconPicker from '../_components/IconPicker';
+import HAEntityInput from '../_components/HAEntityInput';
 import { useT } from "@/lib/i18n/LocaleProvider";
 
 type ButtonInspectorProps = {
@@ -87,6 +88,7 @@ export default function ButtonInspector({
                   value={(activeWidget.config as any)?.[`icon${btnSuffix}`] || ""}
                   onChange={(iconId) => updateConfig(activeWidget.i, `icon${btnSuffix}`, iconId)}
                   placeholder={t("z.B. lucide:power — leer = Button inaktiv")}
+                  defaultPrefix="lucide"
                   quickPicks={['lucide:power', 'lucide:eye', 'lucide:eye-off', 'lucide:lightbulb', 'lucide:zap', 'lucide:play', 'lucide:pause', 'lucide:home', 'lucide:layers', 'lucide:calendar', 'lucide:cpu', 'lucide:grid']}
                />
                <ActionEditor
@@ -203,10 +205,9 @@ function ActionEditor({
       {(action === "ha_toggle" || action === "ha_service") && (
         <div>
           <label className="text-xs font-medium text-white/70 block mb-1">{t("HA Entity-ID")}</label>
-          <input
-            type="text"
+          <HAEntityInput
             value={(activeWidget.config as any)?.[k("haEntity")] || ""}
-            onChange={(e) => updateConfig(activeWidget.i, k("haEntity"), e.target.value)}
+            onChange={(v) => updateConfig(activeWidget.i, k("haEntity"), v)}
             placeholder="switch.kitchen_light"
             className="w-full bg-black border border-white/10 text-white text-sm rounded-lg p-2 focus:outline-none focus:border-cyan-500"
           />
@@ -220,7 +221,7 @@ function ActionEditor({
             type="text"
             value={(activeWidget.config as any)?.[k("haService")] || ""}
             onChange={(e) => updateConfig(activeWidget.i, k("haService"), e.target.value)}
-            placeholder="script.good_night  oder  light.turn_on"
+            placeholder={t("script.good_night  oder  light.turn_on")}
             className="w-full bg-black border border-white/10 text-white text-sm font-mono rounded-lg p-2 focus:outline-none focus:border-cyan-500"
           />
           <p className="text-[11px] text-white/40 mt-1">{t("Beispiele:")} <code>script.foo</code>, <code>scene.movie_time</code>, <code>light.turn_on</code></p>

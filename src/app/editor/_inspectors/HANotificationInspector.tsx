@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Trash2, ChevronDown } from 'lucide-react';
 import type { WidgetLayoutItem } from '../_types';
+import HAEntityInput from '../_components/HAEntityInput';
+import IconPicker from '../_components/IconPicker';
 import { useT } from "@/lib/i18n/LocaleProvider";
 
 type HANotificationInspectorProps = {
@@ -158,11 +160,18 @@ export default function HANotificationInspector({
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 mt-2">
                     <div>
                        <label className="text-[10px] uppercase text-fuchsia-400 font-bold">{t("Trigger Entity")}</label>
-                       <input type="text" value={rule.entityId || ''} onChange={(e) => {
-                           const newRules = [...(activeWidget.config?.rules || [])];
-                           newRules[rIdx] = { ...rule, entityId: e.target.value };
-                           updateConfig(activeWidget.i, 'rules', newRules);
-                       }} className="w-full bg-black/50 border border-white/10 text-white text-xs p-2 rounded focus:border-fuchsia-500 outline-none mt-1" placeholder="sensor.washer" />
+                       <div className="mt-1">
+                       <HAEntityInput
+                          value={rule.entityId || ''}
+                          onChange={(v) => {
+                             const newRules = [...(activeWidget.config?.rules || [])];
+                             newRules[rIdx] = { ...rule, entityId: v };
+                             updateConfig(activeWidget.i, 'rules', newRules);
+                          }}
+                          placeholder="sensor.washer"
+                          className="w-full bg-black/50 border border-white/10 text-white text-xs p-2 rounded focus:border-fuchsia-500 outline-none"
+                       />
+                       </div>
                     </div>
                     <div>
                        <label className="text-[10px] uppercase text-fuchsia-400 font-bold">{t("Trigger Status")}</label>
@@ -184,13 +193,32 @@ export default function HANotificationInspector({
                  </div>
 
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <div>
-                       <label className="text-[10px] uppercase text-white/50">{t("Icon")}</label>
-                       <input type="text" value={rule.icon || ''} onChange={(e) => {
-                           const newRules = [...(activeWidget.config?.rules || [])];
-                           newRules[rIdx] = { ...rule, icon: e.target.value };
-                           updateConfig(activeWidget.i, 'rules', newRules);
-                       }} className="w-full bg-black/50 border border-white/10 text-white text-xs p-2 rounded outline-none mt-1" placeholder="mdi:bell" />
+                    <div className="sm:col-span-3">
+                       <IconPicker
+                          label={t("Icon")}
+                          value={rule.icon || ''}
+                          onChange={(iconId) => {
+                             const newRules = [...(activeWidget.config?.rules || [])];
+                             newRules[rIdx] = { ...rule, icon: iconId };
+                             updateConfig(activeWidget.i, 'rules', newRules);
+                          }}
+                          placeholder="mdi:bell"
+                          defaultPrefix="mdi"
+                          quickPicks={[
+                             "mdi:bell",
+                             "mdi:bell-ring",
+                             "mdi:washing-machine",
+                             "mdi:tumble-dryer",
+                             "mdi:dishwasher",
+                             "mdi:fridge",
+                             "mdi:water-alert",
+                             "mdi:fire",
+                             "mdi:door-open",
+                             "mdi:window-open",
+                             "mdi:cat",
+                             "mdi:dog",
+                          ]}
+                       />
                     </div>
                     <div>
                        <label className="text-[10px] uppercase text-white/50">{t("Dauer (Min)")}</label>
@@ -278,7 +306,7 @@ export default function HANotificationInspector({
                                 const newRules = [...(activeWidget.config?.rules || [])];
                                 newRules[rIdx] = { ...rule, clearEntityId: e.target.value };
                                 updateConfig(activeWidget.i, 'rules', newRules);
-                            }} placeholder="z.B. binary_sensor.door" className="w-full bg-black border border-white/10 text-white font-sans text-xs rounded-md p-2 focus:outline-none focus:border-amber-500" />
+                            }} placeholder={t("z.B. binary_sensor.door")} className="w-full bg-black border border-white/10 text-white font-sans text-xs rounded-md p-2 focus:outline-none focus:border-amber-500" />
                          </div>
                          <div>
                             <label className="text-[10px] font-medium text-white/50 block mb-1 uppercase tracking-wider">{t("Erwarteter Zustand")}</label>

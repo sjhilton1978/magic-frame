@@ -11,7 +11,17 @@ type IconPickerProps = {
   placeholder?: string;
   quickPicks?: string[];
   label?: string;
+  /**
+   * Default icon-set prefix to filter the Iconify search to.
+   * - "mdi" — Material Design Icons (matches Home Assistant's conventions)
+   * - "lucide" — Lucide line icons (matches the rest of Magic Frame's UI)
+   * - undefined — search across all sets
+   * The user can switch between MDI / Lucide / all via pills in the picker.
+   */
+  defaultPrefix?: "mdi" | "lucide";
 };
+
+type SetFilter = "mdi" | "lucide" | "all";
 
 const DEFAULT_QUICK: string[] = [
   "lucide:power",
@@ -28,11 +38,14 @@ const DEFAULT_QUICK: string[] = [
   "lucide:unlock",
 ];
 
-export default function IconPicker({ value, onChange, placeholder, quickPicks, label }: IconPickerProps) {
+export default function IconPicker({ value, onChange, placeholder, quickPicks, label, defaultPrefix }: IconPickerProps) {
   const t = useT();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  // Active set filter — starts at the caller's preferred prefix, but the user
+  // can flip to "lucide" or "all" via the pills above the search box.
+  const [setFilter, setSetFilter] = useState<SetFilter>(defaultPrefix ?? "all");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -48,8 +61,12 @@ export default function IconPicker({ value, onChange, placeholder, quickPicks, l
       abortRef.current = new AbortController();
       setLoading(true);
       try {
+        // ?prefix=mdi limits results to a single icon set; useful so HA users
+        // see MDI hits first when looking up "lightbulb" instead of being drowned
+        // in solar:* / hugeicons:* / ph:* variants.
+        const prefixParam = setFilter !== "all" ? `&prefix=${setFilter}` : "";
         const res = await fetch(
-          `https://api.iconify.design/search?query=${encodeURIComponent(query.trim())}&limit=30`,
+          `https://api.iconify.design/search?query=${encodeURIComponent(query.trim())}&limit=30${prefixParam}`,
           { signal: abortRef.current.signal },
         );
         const data = await res.json();
@@ -64,7 +81,7 @@ export default function IconPicker({ value, onChange, placeholder, quickPicks, l
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query]);
+  }, [query, setFilter]);
 
   const picks = quickPicks && quickPicks.length > 0 ? quickPicks : DEFAULT_QUICK;
   const showResults = query.trim().length >= 2;
@@ -92,31 +109,61 @@ export default function IconPicker({ value, onChange, placeholder, quickPicks, l
         />
       </div>
 
-      <div className="relative">
-        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("Icon suchen (Iconify)…")}
-          className="w-full bg-black/40 border border-white/10 text-white text-xs rounded-lg pl-8 pr-8 h-8 focus:outline-none focus:border-cyan-500"
-        />
-        {query && (
-          <button
-            onClick={() => setQuery("")}
-            className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-white/40 hover:text-white"
-            title={t("Suche löschen")}
-          >
-            <X size={12} />
-          </button>
-        )}
+      {/* Set-filter pills + search input row.
+          MDI is the Home-Assistant convention; Lucide matches the rest of
+          Magic Frame's UI; "All" opens up the full Iconify catalogue
+          (~150k icons across ~100 sets).
+          Pills are fixed-width (w-14) so MDI / Lucide / All read as a
+          rhythmic, balanced segmented control regardless of label length.
+          Container uses bg-white/5 + border for visibility on every parent
+          background (deep-black inspector, lighter accordion card, etc.). */}
+      <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 bg-white/5 border border-white/10 rounded-lg p-0.5 text-[10px] font-medium">
+          {(["mdi", "lucide", "all"] as SetFilter[]).map((f) => {
+            const isActive = setFilter === f;
+            const labelText = f === "mdi" ? "MDI" : f === "lucide" ? "Lucide" : t("Alle");
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setSetFilter(f)}
+                className={`w-14 h-7 rounded-md transition-colors text-center ${
+                  isActive
+                    ? "bg-cyan-500/20 text-cyan-200"
+                    : "text-white/50 hover:text-white"
+                }`}
+              >
+                {labelText}
+              </button>
+            );
+          })}
+        </div>
+        <div className="relative flex-1">
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("Icon suchen (Iconify)…")}
+            className="w-full bg-white/5 border border-white/10 text-white text-xs rounded-lg pl-8 pr-8 h-8 focus:outline-none focus:border-cyan-500"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-white/40 hover:text-white"
+              title={t("Suche löschen")}
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
       </div>
 
       {showResults ? (
         loading ? (
           <div className="text-xs text-white/40 py-2 px-1">{t("Sucht…")}</div>
         ) : results.length === 0 ? (
-          <div className="text-xs text-white/40 py-2 px-1">Keine Treffer für „{query}"</div>
+          <div className="text-xs text-white/40 py-2 px-1">{t("Keine Treffer für")} „{query}"</div>
         ) : (
           <div className="grid grid-cols-6 gap-1 max-h-48 overflow-y-auto bg-black/30 border border-white/10 rounded-lg p-1.5">
             {results.map((id) => (
@@ -138,7 +185,7 @@ export default function IconPicker({ value, onChange, placeholder, quickPicks, l
       ) : (
         <div>
           <div className="text-[10px] uppercase tracking-wider text-white/40 px-1 mb-1">
-            Schnellauswahl
+            {t("Schnellauswahl")}
           </div>
           <div className="grid grid-cols-6 gap-1">
             {picks.map((id) => (

@@ -6,6 +6,7 @@ import type { WidgetLayoutItem } from "../_types";
 import type { HAEntitySlot } from "@/lib/widgets/ha-migration";
 import IconPicker from "../_components/IconPicker";
 import AccordionCard from "../_components/AccordionCard";
+import HAEntityInput from "../_components/HAEntityInput";
 import { useT } from "@/lib/i18n/LocaleProvider";
 
 type HomeAssistantInspectorProps = {
@@ -83,11 +84,10 @@ export default function HomeAssistantInspector({
               <label className="text-xs font-medium text-white/50 block mb-2">
                 {t("Entity-ID (z.B. light.kitchen)")}
               </label>
-              <input
-                type="text"
+              <HAEntityInput
                 value={entity.entityId || ""}
+                onChange={(v) => updateEntity(idx, "entityId", v)}
                 placeholder="sensor.living_room_temp"
-                onChange={(e) => updateEntity(idx, "entityId", e.target.value)}
                 className="w-full bg-black border border-white/10 text-white font-sans text-sm rounded-lg p-3 focus:outline-none focus:border-cyan-500"
               />
             </div>
@@ -97,6 +97,7 @@ export default function HomeAssistantInspector({
               value={entity.icon || ""}
               onChange={(iconId) => updateEntity(idx, "icon", iconId)}
               placeholder="mdi:home-assistant"
+              defaultPrefix="mdi"
               quickPicks={[
                 "mdi:lightbulb",
                 "mdi:thermometer",
@@ -122,11 +123,10 @@ export default function HomeAssistantInspector({
                   <label className="text-[10px] font-medium text-blue-400 block mb-1 uppercase tracking-wider">
                     {t("Zeigen, wenn Entity")}
                   </label>
-                  <input
-                    type="text"
+                  <HAEntityInput
                     value={entity.showIfEntity || ""}
-                    placeholder="z.B. switch.washer"
-                    onChange={(e) => updateEntity(idx, "showIfEntity", e.target.value)}
+                    onChange={(v) => updateEntity(idx, "showIfEntity", v)}
+                    placeholder={t("z.B. switch.washer")}
                     className="w-full bg-black/50 border border-white/10 text-white/80 font-sans text-xs rounded-md p-2 focus:outline-none focus:border-blue-500"
                   />
                 </div>
@@ -137,7 +137,7 @@ export default function HomeAssistantInspector({
                   <input
                     type="text"
                     value={entity.showIfState || ""}
-                    placeholder="z.B. on"
+                    placeholder={t("z.B. on")}
                     onChange={(e) => updateEntity(idx, "showIfState", e.target.value)}
                     className="w-full bg-black/50 border border-white/10 text-white/80 font-sans text-xs rounded-md p-2 focus:outline-none focus:border-blue-500"
                   />
@@ -152,7 +152,7 @@ export default function HomeAssistantInspector({
               <input
                 type="text"
                 value={entity.hideWhen || ""}
-                placeholder="z.B. off oder idle"
+                placeholder={t("z.B. off oder idle")}
                 onChange={(e) => updateEntity(idx, "hideWhen", e.target.value)}
                 className="w-full bg-black/50 border border-white/10 text-white/80 font-sans text-xs rounded-md p-2 focus:outline-none focus:border-cyan-500"
               />
@@ -192,7 +192,7 @@ export default function HomeAssistantInspector({
                   <input
                     type="text"
                     value={entity.colorWhen || ""}
-                    placeholder="z.B. on"
+                    placeholder={t("z.B. on")}
                     onChange={(e) => updateEntity(idx, "colorWhen", e.target.value)}
                     className="w-full bg-black/50 border border-white/10 text-white/70 font-sans text-xs rounded-md p-2 focus:outline-none focus:border-cyan-500"
                   />
