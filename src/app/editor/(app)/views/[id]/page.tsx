@@ -75,6 +75,225 @@ const WIDGET_ACCENT: Record<string, { hex: string; glow: string; tint: string }>
 };
 const DEFAULT_ACCENT = { hex: "#64748b", glow: "rgba(100,116,139,0.2)", tint: "rgba(100,116,139,0.1)" };
 
+/**
+ * Editor placeholder body — a low-fidelity skeleton that hints at the
+ * widget's actual layout (rows, tiles, icons, etc.) in the accent colour.
+ * All sizes are percentages so it scales to any widget size on the grid.
+ *
+ * Returns `null` for unknown / custom-module types; the caller falls back
+ * to a single centred type-icon for those.
+ */
+function widgetSkeletonFor(type: string, accentHex: string): React.ReactNode {
+  // 8-char hex with alpha — works in every modern browser.
+  // 33 ≈ 20% / 1f ≈ 12% / 14 ≈ 8% (subtle layered effect).
+  const dim = `${accentHex}33`;
+  const dimmer = `${accentHex}1f`;
+  const faint = `${accentHex}14`;
+
+  switch (type) {
+    case "ClockWidget.tsx":
+      // Date strip on top, then a "HH : MM" time row — two big blocks with
+      // a two-dot colon between them. Reads as a clock even at small sizes.
+      // items-center keeps the strip and time row horizontally centred.
+      return (
+        <div className="w-full h-full flex flex-col p-[10%] gap-[8%] justify-center items-center overflow-hidden">
+          <div
+            className="rounded-full"
+            style={{ width: "30%", height: "6%", backgroundColor: dimmer }}
+          />
+          <div className="flex items-center justify-center gap-[4%] w-full" style={{ height: "45%" }}>
+            <div className="rounded-md h-full" style={{ width: "38%", backgroundColor: dim }} />
+            <div
+              className="flex flex-col justify-center gap-[40%] h-full"
+              style={{ width: "6%" }}
+            >
+              <div className="rounded-full aspect-square w-full" style={{ backgroundColor: dim }} />
+              <div className="rounded-full aspect-square w-full" style={{ backgroundColor: dim }} />
+            </div>
+            <div className="rounded-md h-full" style={{ width: "38%", backgroundColor: dim }} />
+          </div>
+        </div>
+      );
+
+    case "WeatherWidget.tsx":
+      // Location strip / temp + icon row / "feels like" / forecast tiles.
+      return (
+        <div className="w-full h-full flex flex-col p-[8%] gap-[5%] overflow-hidden">
+          <div className="rounded-full" style={{ width: "25%", height: "5%", backgroundColor: dimmer }} />
+          <div className="flex items-center gap-[5%]" style={{ height: "32%" }}>
+            <div className="rounded-md h-full" style={{ width: "42%", backgroundColor: dim }} />
+            <div className="rounded-full h-full aspect-square" style={{ backgroundColor: dimmer }} />
+          </div>
+          <div className="rounded-full" style={{ width: "55%", height: "4%", backgroundColor: dimmer }} />
+          <div className="flex gap-[3%] mt-auto" style={{ height: "26%" }}>
+            <div className="flex-1 rounded-md" style={{ backgroundColor: faint }} />
+            <div className="flex-1 rounded-md" style={{ backgroundColor: faint }} />
+            <div className="flex-1 rounded-md" style={{ backgroundColor: faint }} />
+            <div className="flex-1 rounded-md" style={{ backgroundColor: faint }} />
+          </div>
+        </div>
+      );
+
+    case "CalendarWidget.tsx":
+      // Three event rows: date block + two text lines.
+      return (
+        <div className="w-full h-full flex flex-col p-[8%] gap-[8%] overflow-hidden justify-center">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-[5%]" style={{ height: "22%" }}>
+              <div className="rounded-md h-full aspect-square" style={{ backgroundColor: dim }} />
+              <div className="flex-1 flex flex-col gap-[18%] justify-center h-full">
+                <div className="rounded-full" style={{ height: "32%", width: i === 2 ? "65%" : "85%", backgroundColor: dim }} />
+                <div className="rounded-full" style={{ height: "22%", width: "50%", backgroundColor: dimmer }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "HomeAssistantWidget.tsx":
+      // Stacked horizontal pills — matches the real widget's flex-col layout
+      // of long, flat entity cards (round icon + label + state on one line).
+      return (
+        <div className="w-full h-full flex flex-col p-[6%] gap-[5%] overflow-hidden justify-center">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="flex items-center gap-[4%] rounded-full"
+              style={{
+                height: "18%",
+                padding: "0 4%",
+                backgroundColor: i % 2 === 0 ? dimmer : faint,
+              }}
+            >
+              <div
+                className="rounded-full aspect-square"
+                style={{ height: "60%", backgroundColor: dim }}
+              />
+              <div
+                className="rounded-full"
+                style={{
+                  height: "30%",
+                  width: `${68 - i * 6}%`,
+                  backgroundColor: dim,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      );
+
+    case "ButtonWidget.tsx":
+      // 2×2 grid of square button tiles, each with a small power-icon dot in
+      // the middle so they read as actual buttons (not just empty cells).
+      return (
+        <div
+          className="w-full h-full grid grid-cols-2 grid-rows-2 p-[12%]"
+          style={{ gap: "8%" }}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="rounded-md flex items-center justify-center"
+              style={{ backgroundColor: i === 0 ? dim : dimmer }}
+            >
+              <div
+                className="rounded-full aspect-square"
+                style={{
+                  width: "32%",
+                  backgroundColor: i === 0 ? dimmer : faint,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      );
+
+    case "HANotificationWidget.tsx":
+      // Stacked horizontal notification cards — matches the real widget's
+      // flex-col layout. Each card: round bell + 2 short text lines, compact
+      // rounded-3xl-style pill.
+      return (
+        <div className="w-full h-full flex flex-col p-[6%] gap-[5%] overflow-hidden justify-center">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="flex items-center gap-[4%] rounded-2xl"
+              style={{
+                height: "22%",
+                padding: "0 4%",
+                backgroundColor: i === 0 ? dimmer : faint,
+              }}
+            >
+              <div
+                className="rounded-full aspect-square shrink-0"
+                style={{ height: "55%", backgroundColor: dim }}
+              />
+              <div className="flex-1 flex flex-col gap-[20%] justify-center">
+                <div
+                  className="rounded-full"
+                  style={{
+                    height: "22%",
+                    width: `${80 - i * 8}%`,
+                    backgroundColor: dim,
+                  }}
+                />
+                <div
+                  className="rounded-full"
+                  style={{ height: "16%", width: "45%", backgroundColor: dimmer }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+    case "TimerWidget.tsx":
+      // Big centred countdown block + small caption underneath.
+      return (
+        <div className="w-full h-full flex flex-col p-[10%] gap-[8%] justify-center items-center overflow-hidden">
+          <div className="rounded-lg" style={{ height: "48%", width: "80%", backgroundColor: dim }} />
+          <div className="rounded-full" style={{ height: "8%", width: "40%", backgroundColor: dimmer }} />
+        </div>
+      );
+
+    case "MessagesWidget.tsx":
+      // Four staggered text lines.
+      return (
+        <div className="w-full h-full flex flex-col p-[10%] gap-[8%] justify-center overflow-hidden">
+          <div className="rounded-full" style={{ height: "10%", width: "85%", backgroundColor: dim }} />
+          <div className="rounded-full" style={{ height: "10%", width: "70%", backgroundColor: dim }} />
+          <div className="rounded-full" style={{ height: "10%", width: "82%", backgroundColor: dimmer }} />
+          <div className="rounded-full" style={{ height: "10%", width: "60%", backgroundColor: dimmer }} />
+        </div>
+      );
+
+    case "ShoppingListWidget.tsx":
+    case "TodosWidget.tsx":
+      // List rows: checkbox square + text line.
+      return (
+        <div className="w-full h-full flex flex-col p-[8%] gap-[8%] overflow-hidden justify-center">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-[5%]" style={{ height: "14%" }}>
+              <div className="rounded h-full aspect-square" style={{ backgroundColor: dim }} />
+              <div
+                className="flex-1 rounded-full"
+                style={{
+                  height: "50%",
+                  width: `${80 - i * 8}%`,
+                  backgroundColor: i < 2 ? dim : dimmer,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      );
+
+    default:
+      // Custom modules etc — caller falls back to a single big icon.
+      return null;
+  }
+}
+
 function widgetIconFor(type: string, size = 12): React.ReactNode {
   switch (type) {
     case "ClockWidget.tsx":
@@ -226,13 +445,13 @@ export default function ViewEditor({
   const addWidget = (type: string) => {
     const newId = Math.random().toString(36).substring(7);
     let label = type.replace("Widget.tsx", "");
-    if (type === "ClockWidget.tsx") label = "Uhr";
-    if (type === "WeatherWidget.tsx") label = "Wetter";
-    if (type === "HomeAssistantWidget.tsx") label = "HA Entity";
-    if (type === "TimerWidget.tsx") label = "Timer";
-    if (type === "MessagesWidget.tsx") label = "Nachrichten";
-    if (type === "ShoppingListWidget.tsx") label = "Einkaufsliste";
-    if (type === "TodosWidget.tsx") label = "Todos";
+    if (type === "ClockWidget.tsx") label = t("Uhr");
+    if (type === "WeatherWidget.tsx") label = t("Wetter");
+    if (type === "HomeAssistantWidget.tsx") label = t("HA Entity");
+    if (type === "TimerWidget.tsx") label = t("Timer");
+    if (type === "MessagesWidget.tsx") label = t("Nachrichten");
+    if (type === "ShoppingListWidget.tsx") label = t("Einkaufsliste");
+    if (type === "TodosWidget.tsx") label = t("Todos");
     // Custom-Modul: label aus dem Manifest, Felder mit Defaults vorbelegen.
     const initialConfig: any = { fontSize: 20, fontFamily: "var(--font-geist-sans)" };
     if (type.startsWith("custom:")) {
@@ -278,9 +497,9 @@ export default function ViewEditor({
         const data = await res.json().catch(() => ({}));
         console.error("[save] failed:", res.status, data);
         const details = data?.details
-          ? `\n\nDetails:\n${JSON.stringify(data.details, null, 2)}`
+          ? `\n\n${t("Details:")}\n${JSON.stringify(data.details, null, 2)}`
           : "";
-        alert(`Speichern fehlgeschlagen (HTTP ${res.status}): ${data?.error ?? "unbekannt"}${details}`);
+        alert(`${t("Speichern fehlgeschlagen")} (HTTP ${res.status}): ${data?.error ? t(data.error) : t("unbekannt")}${details}`);
         setSaveStatus("error");
         setTimeout(() => setSaveStatus(null), 2500);
         return;
@@ -290,7 +509,7 @@ export default function ViewEditor({
       setTimeout(() => setSaveStatus(null), 2000);
     } catch (err) {
       console.error("[save] network error:", err);
-      alert("Netzwerkfehler beim Speichern. Details in der Konsole.");
+      alert(t("Netzwerkfehler beim Speichern. Details in der Konsole."));
       setSaveStatus("error");
       setTimeout(() => setSaveStatus(null), 2500);
     }
@@ -700,28 +919,21 @@ export default function ViewEditor({
                           </button>
                         </div>
 
-                        <div
-                          className="flex-1 flex items-center justify-center pointer-events-none"
-                          style={{
-                            containerType: "size",
-                            fontSize: w.config?.responsiveText
-                              ? `${(w.config.fontSize || 20) / 1.5}cqmin`
-                              : `${w.config.fontSize || 20}px`,
-                            fontFamily: `${w.config?.fontFamily || "var(--font-geist-sans)"}, sans-serif`,
-                            color: w.config?.color || "inherit",
-                            fontWeight: w.config?.fontWeight ? parseInt(w.config.fontWeight) : "inherit",
-                            textShadow:
-                              (w.config?.textShadowBlur ?? 0) > 0 ||
-                              (w.config?.textShadowX ?? 0) !== 0 ||
-                              (w.config?.textShadowY ?? 0) !== 0
-                                ? `${w.config?.textShadowX ?? 0}px ${w.config?.textShadowY ?? 4}px ${w.config?.textShadowBlur ?? 0}px rgba(0,0,0,0.8)`
-                                : "none",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <span className="text-[0.9em] font-sans truncate max-w-full px-3 opacity-25">
-                            {w.label}
-                          </span>
+                        {/* Editor placeholder body: low-fidelity skeleton in the
+                            accent colour that hints at the actual widget layout
+                            (event rows, entity tiles, button grid, etc.). All
+                            sizes are percentage-based so it scales to any widget
+                            size on the grid. Custom modules without a matching
+                            skeleton fall through to a single centred icon. */}
+                        <div className="flex-1 pointer-events-none overflow-hidden">
+                          {widgetSkeletonFor(w.type, accent.hex) ?? (
+                            <div
+                              className="w-full h-full flex items-center justify-center"
+                              style={{ color: accent.hex, opacity: 0.15 }}
+                            >
+                              {widgetIconFor(w.type, 56)}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -739,7 +951,7 @@ export default function ViewEditor({
                       <div className="w-4 h-4 rounded-full border-4 border-white/20"></div>
                     )}
                     <span className="text-white/30 text-xs font-semibold pl-2 drop-shadow-md">
-                      Metadaten Platzhalter
+                      {t("Metadaten Platzhalter")}
                     </span>
                   </div>
                   <div
@@ -754,17 +966,17 @@ export default function ViewEditor({
                   >
                     {wallpaper.metaShowDate !== false && (
                       <>
-                        07. Juli 2025
+                        {t("07. Juli 2025")}
                         <br />
                       </>
                     )}
                     {wallpaper.metaShowLocation !== false && (
                       <>
-                        München
+                        {t("München")}
                         <br />
                       </>
                     )}
-                    {wallpaper.metaShowCamera !== false && <>Shot on iPhone</>}
+                    {wallpaper.metaShowCamera !== false && <>{t("Shot on iPhone")}</>}
                   </div>
                 </div>
               )}
