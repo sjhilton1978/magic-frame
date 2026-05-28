@@ -343,6 +343,7 @@ Sowohl Next.js als auch der Browser cachen aggressiv. Hard-Refresh (`Cmd+Shift+R
 
 | | |
 |---|---|
+| [`ROADMAP.md`](ROADMAP.md) | Was als nächstes kommt + wie Releases ablaufen |
 | [`LICENSE.md`](LICENSE.md) | Polyform Noncommercial 1.0.0 |
 | [`.env.example`](.env.example) | Alle ENV-Variablen dokumentiert |
 | [`docs/custom-modules.md`](docs/custom-modules.md) | Eigene Widget-Module bauen + hochladen |

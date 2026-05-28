@@ -343,6 +343,7 @@ Both Next.js and your browser cache aggressively. Hard-refresh (`Cmd+Shift+R` / 
 
 | | |
 |---|---|
+| [`ROADMAP.md`](ROADMAP.md) | What's coming next + how releases work |
 | [`LICENSE.md`](LICENSE.md) | Polyform Noncommercial 1.0.0 |
 | [`.env.example`](.env.example) | All environment variables documented |
 | [`docs/custom-modules.md`](docs/custom-modules.md) | Build + upload your own widget modules |
