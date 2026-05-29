@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { verifySession, UnauthorizedError, unauthorizedResponse } from "@/lib/auth/dal";
 import { layoutSyncBodySchema } from "@/lib/widgets/schemas";
+import { remapButtonTargets } from "@/lib/widgets/remap-targets";
 import { createSnapshot } from "@/lib/backups/snapshots";
 
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -52,10 +53,24 @@ export async function POST(req: NextRequest) {
     // Clear old layout and overwrite
     await prisma.widget.deleteMany({ where: { dashboardId } });
 
+    // Widget ids are persisted with a `${dashboardId}_` prefix. Apply the same
+    // rule to a Button's stored target ids so its show/hide links survive the
+    // rename instead of being orphaned. This also auto-heals layouts saved by
+    // older builds (where an unprefixed target like "clk" maps cleanly onto the
+    // now-prefixed widget id) — but only when the result is a real widget in
+    // this layout; genuine orphans are left untouched.
+    const finalId = (i: string) =>
+      i.startsWith(`${dashboardId}_`) ? i : `${dashboardId}_${i}`;
+    const validIds = new Set(layout.map((it) => finalId(it.i)));
+    const mapTarget = (id: string) => {
+      const mapped = finalId(id);
+      return validIds.has(mapped) ? mapped : id;
+    };
+
     for (const item of layout) {
       await prisma.widget.create({
         data: {
-          id: item.i.startsWith(`${dashboardId}_`) ? item.i : `${dashboardId}_${item.i}`,
+          id: finalId(item.i),
           type: item.type,
           label: item.label ?? "",
           x: item.x,
@@ -63,7 +78,7 @@ export async function POST(req: NextRequest) {
           w: item.w,
           h: item.h,
           bgOpacity: item.bgOpacity,
-          config: (item.config as any) ?? {},
+          config: remapButtonTargets((item.config as any) ?? {}, mapTarget),
           dashboardId,
         },
       });

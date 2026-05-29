@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { verifySession, UnauthorizedError, unauthorizedResponse } from "@/lib/auth/dal";
 import { DEFAULT_WALLPAPER } from "@/lib/wallpaper-engine/bundled";
+import { remapButtonTargets } from "@/lib/widgets/remap-targets";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
@@ -74,14 +75,18 @@ export async function POST(req: NextRequest) {
        });
 
        const widgetSuffix = `_${safeId}`;
+       // Map every source widget id to its new (suffixed) id first, so button
+       // target references can be rewritten as we copy.
+       const idMap: Record<string, string> = {};
+       for (const w of source.widgets) idMap[w.id] = w.id + widgetSuffix;
        for (const w of source.widgets) {
           await prisma.widget.create({
              data: {
-                id: w.id + widgetSuffix, // unique per target dashboard
+                id: idMap[w.id], // unique per target dashboard
                 type: w.type,
                 x: w.x, y: w.y, w: w.w, h: w.h,
                 bgOpacity: w.bgOpacity,
-                config: w.config || {},
+                config: remapButtonTargets(w.config, (id) => idMap[id] ?? id),
                 dashboardId: safeId
              }
           });
@@ -107,15 +112,17 @@ export async function POST(req: NextRequest) {
           }
        });
 
-       // Copy widgets
+       // Copy widgets — remap button target references to the new ids too.
+       const idMap: Record<string, string> = {};
+       for (const w of oldDashboard.widgets) idMap[w.id] = w.id + "_copy";
        for (const w of oldDashboard.widgets) {
           await prisma.widget.create({
              data: {
-                id: w.id + "_copy", // prevent duplicate widget IDs
+                id: idMap[w.id], // prevent duplicate widget IDs
                 type: w.type,
                 x: w.x, y: w.y, w: w.w, h: w.h,
                 bgOpacity: w.bgOpacity,
-                config: w.config || {},
+                config: remapButtonTargets(w.config, (id) => idMap[id] ?? id),
                 dashboardId: safeId
              }
           });
