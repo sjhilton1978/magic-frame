@@ -1,97 +1,23 @@
-# Magic Frame Stack
-#
-# Hinweis: Der Postgres-DB-Name (POSTGRES_DB / DATABASE_URL-Pfad) heißt
-# weiterhin `magicdashboard` — bewusst NICHT umbenannt, damit bestehende
-# Installationen ohne Datenverlust auf neue Releases updaten können. Der
-# App-Code referenziert die DB nur über DATABASE_URL, der Name ist nur
-# ein interner Identifier.
-#
-# Caddy ist immer dabei und macht Reverse-Proxy + automatisches HTTPS
-# (via Let's Encrypt). Im Default (keine Domain konfiguriert) fungiert
-# Caddy einfach als transparenter HTTP-Proxy auf :80 → app:3000.
-# Sobald in der App eine Domain + ACME-Email gesetzt wird, generiert die
-# App ein neues Caddyfile und triggert einen Reload — Caddy holt das Cert.
-#
-# Die App lauscht nur intern auf 3000 (Compose-Network), nicht mehr
-# direkt am Host. Wer den alten Direct-:80-Mode will, kann
-# `ports: ["80:3000"]` bei `app` setzen und Caddy auf einen anderen
-# Port verschieben — aber dann läuft auch kein automatisches HTTPS.
-
 services:
   app:
-    # Standard: vorgebautes Multi-Arch-Image von ghcr.io (schnell, kein lokaler
-    # Build — vor allem auf dem Pi). `build:` bleibt aktiv als Opt-in:
-    # `docker compose up -d --build` (oder install.sh --build) baut weiterhin
-    # from-source. Beide Wege funktionieren. (#9)
-    image: ghcr.io/jeremiaa/magic-frame-app:${MAGIC_FRAME_VERSION:-latest}
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    expose:
-      - "3000"
+    ports:
+      - "3333:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/magicdashboard?schema=public
       - NODE_ENV=production
-      # Host-Timezone-Passthrough (#73): der Installer schreibt TZ in die .env.
-      # Leer/ungesetzt = UTC — bestehende Installationen ändern sich nicht.
-      - TZ=${TZ:-}
       - SESSION_SECRET=${SESSION_SECRET}
-      - ADMIN_EMAIL=${ADMIN_EMAIL:-}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
-      - COOKIE_SECURE=${COOKIE_SECURE:-}
-      - APP_BASE_URL=${APP_BASE_URL:-}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
-      - MS_CLIENT_ID=${MS_CLIENT_ID:-}
-      - MS_CLIENT_SECRET=${MS_CLIENT_SECRET:-}
-      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
-      # Caddy-Admin-API für Reloads. Standard-URL des Sidecar-Containers.
-      - CADDY_ADMIN_URL=${CADDY_ADMIN_URL:-http://caddy:2019}
-      # Notbremse für die Entitäts-Erlaubnisliste von /api/ha/action (auf "1"
-      # setzen hebt sie auf). Muss HIER stehen und nicht nur in der .env: der
-      # app-Dienst hat eine ausdrückliche environment-Liste, und Compose reicht
-      # die .env sonst nur zur Interpolation in dieser Datei weiter — im
-      # Container käme die Variable nie an.
-      - MAGIC_FRAME_HA_ACTION_UNRESTRICTED=${MAGIC_FRAME_HA_ACTION_UNRESTRICTED:-}
-      # Anzahl der Reverse-Proxies vor Magic Frame (siehe .env.example).
-      - TRUSTED_PROXY_HOPS=${TRUSTED_PROXY_HOPS:-1}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     volumes:
       - magic_configs:/app/configs
       - magic_wallpapers:/app/wallpapers
-      # Shared Caddy-Config-Volume — App schreibt Caddyfile rein, Caddy liest.
-      - magic_caddy_config:/caddy/config
     depends_on:
       db:
         condition: service_healthy
-
-  caddy:
-    # Vorgebautes Image (s. app). `build:` bleibt der Opt-in-From-Source-Pfad.
-    image: ghcr.io/jeremiaa/magic-frame-caddy:${MAGIC_FRAME_VERSION:-latest}
-    build:
-      context: ./caddy
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    environment:
-      # Host-Timezone-Passthrough (#73), s. app.
-      - TZ=${TZ:-}
-    # Host-Ports. Default 80/443, überschreibbar via .env (HTTP_PORT / HTTPS_PORT)
-    # falls die Standard-Ports auf dem Host belegt sind. Nicht gesetzte Variablen
-    # fallen auf 80/443 zurück — bestehende Installationen ändern sich also nicht.
-    ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
-      - "${HTTPS_PORT:-443}:443/udp"
-      # Admin-API: nur an localhost binden — kein Remote-Zugriff erwünscht.
-      - "127.0.0.1:2019:2019"
-    volumes:
-      # Caddyfile-Verzeichnis (von App beschreibbar, von Caddy gelesen)
-      - magic_caddy_config:/etc/caddy
-      # Persistent ACME-State (Certs, Account-Keys)
-      - magic_caddy_data:/data
-      - magic_caddy_conf:/config
-    depends_on:
-      - app
 
   db:
     image: postgres:16-alpine
@@ -100,26 +26,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: magicdashboard
-      # Host-Timezone-Passthrough (#73), s. app. Gespeicherte Timestamps bleiben
-      # UTC (Prisma normalisiert) — TZ betrifft nur Log-/Session-Defaults.
-      TZ: ${TZ:-}
-    # Kein `ports:` — die Datenbank ist über das Compose-Netz als `db:5432`
-    # erreichbar, und mehr braucht niemand: die App verbindet über DATABASE_URL,
-    # das dokumentierte Backup läuft über `docker compose exec db pg_dump`.
-    #
-    # Hier stand früher `- "5432:5432"`. Damit lag ein Superuser-Zugang mit
-    # postgres/postgres im ganzen Netz — Passwort-Hashes, TOTP-Geheimnisse,
-    # Shortcut-Token, der Home-Assistant-Token und die Kalender-Token inklusive.
-    # Ein veröffentlichter Docker-Port hängt sich ausserdem vor die Firewall des
-    # Hosts, ist also auch dann offen, wenn ufw den Port sperrt.
-    #
-    # Wer ihn wirklich braucht (pgAdmin, DBeaver), legt eine
-    # docker-compose.override.yml daneben — Compose führt sie automatisch mit,
-    # und ein Update fasst sie nie an:
-    #   services:
-    #     db:
-    #       ports:
-    #         - "127.0.0.1:5432:5432"
+    ports:
+      - "5432:5432"
     volumes:
       - magic_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -127,11 +35,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    labels:
+      - "wud.watch=false"
 
 volumes:
   magic_configs:
   magic_wallpapers:
   magic_pgdata:
-  magic_caddy_config:
-  magic_caddy_data:
-  magic_caddy_conf:
